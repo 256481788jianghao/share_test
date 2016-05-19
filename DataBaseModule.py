@@ -8,13 +8,17 @@ class DataBase:
         self.update_share_list()
         data = self.get_share_list()
         dataCodes = data.code
+        sumCount = len(dataCodes)
+        count = 0
         for code in dataCodes:
-            self.update_share_history_data(str(code))
+            count += 1
+            self.update_share_history_data(code)
+            self._log("finish "+str(count)+"/"+str(sumCount))
 
     def update_share_list(self):
         self._log("updata share list form internet")
         data = ts.get_stock_basics()
-        data.to_csv("share_list.csv")
+        data.to_csv("share_list.csv",encoding='utf-8')
 
     def has_share_list_local(self):
         return os.path.exists("share_list.csv")
@@ -32,11 +36,21 @@ class DataBase:
     def has_share_history_local_data(self,code):
         return os.path.exists(code+'.csv')
 
-    def update_share_history_data(self,code):
-        self._log("update data from interneti code="+code)
+    def update_share_history_data(self,codestr):
+        code = self._formtInputCode(codestr)
+        self._log("update data from internet code="+code)
         data = ts.get_hist_data(code)
-        data.to_csv(code+".csv")
-
+        data.to_csv(code+".csv",encoding='utf-8')
+        
+    def _formtInputCode(self,code):
+        codestr = str(code)
+        dlen = 6-len(codestr)
+        while(dlen > 0):
+            codestr = '0'+codestr;
+            dlen -= 1
+        return codestr
+            
+    
     def _log(self,str):
         print("DataBase:"+str)
 
