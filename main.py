@@ -1,3 +1,3 @@
-import DataBase
+import DataBaseModule
 
-dataBase = DataBase.DataBase() 
+dataBase = DataBaseModule.DataBase() 
