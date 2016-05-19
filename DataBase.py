@@ -3,6 +3,19 @@ import os
 import pandas as pd
 
 class DataBase:
+    def update_share_list(self):
+        self._log("updata share list form internet")
+        data = ts.get_stock_basics()
+        data.to_csv("share_list.csv")
+
+    def has_share_list_local(self);
+        return os.path.exists("share_list.csv")
+
+    def get_share_list(self):
+        if not self.has_share_list_local():
+            self.update_share_list()
+        return pd.read_csv("share_list.csv")
+
     def get_share_history_data(self,code):
         if not self.has_share_history_local_data(code):
             self.update_share_history_data(code)
@@ -24,5 +37,5 @@ class DataBase:
 
 if __name__ == "__main__":
     dataBase = DataBase()
-    data = dataBase.get_share_history_data('600845')
+    data = dataBase.get_share_list()
     print(data)
