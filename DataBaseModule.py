@@ -1,6 +1,7 @@
 import tushare as ts
 import os
 import pandas as pd
+import time
 
 class DataBase:
     def update_all_share_history_data(self):
@@ -31,22 +32,36 @@ class DataBase:
     def get_share_history_data(self,code):
         if not self.has_share_history_local_data(code):
             self.update_share_history_data(code)
-        return pd.read_csv(code+'.csv')
+        if self.has_share_history_local_data(code):
+            return pd.read_csv(self._makeLocalShareDataPath(code))
+        else:
+            return None
  
-    def has_share_history_local_data(self,code):
-        return os.path.exists(code+'.csv')
+    def has_share_history_local_data(self,codestr):
+        code = self._formtInputCode(codestr)
+        return os.path.exists(self._makeLocalShareDataPath(code))
 
     def update_share_history_data(self,codestr):
         code = self._formtInputCode(codestr)
         self._log("update data from internet code="+code)
         data = ts.get_hist_data(code)
-        data.to_csv(code+".csv",encoding='utf-8')
+        if isinstance(data,pd.DataFrame):
+            data.to_csv(self._makeLocalShareDataPath(code),encoding='utf-8')
+        else:
+            self._log("update data from internet code="+code+" but not get data")
+
+    def _makeLocalShareDataPath(self,code):
+        timestr = time.strftime('%Y-%m-%d', time.localtime())
+        codestr = self._formtInputCode(code)
+        if not os.path.exists("./localShareData/"):
+            os.mkdir("./localShareData/")
+        return "./localShareData/"+codestr+"_"+timestr+".csv"
         
     def _formtInputCode(self,code):
         codestr = str(code)
         dlen = 6-len(codestr)
         while(dlen > 0):
-            codestr = '0'+codestr;
+            codestr = '0'+codestr
             dlen -= 1
         return codestr
             
@@ -59,6 +74,8 @@ class DataBase:
 
 if __name__ == "__main__":
     dataBase = DataBase()
+    #dataBase._makeLocalShareDataPath(100)
+    #dataBase.get_share_history_data(300512)
     dataBase.update_all_share_history_data()
     #data = dataBase.get_share_list()
     #print(data)
