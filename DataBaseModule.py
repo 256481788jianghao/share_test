@@ -2,19 +2,26 @@ import tushare as ts
 import os
 import pandas as pd
 import time
+import thread
 
 class DataBase:
+
+    updateAllShareHistoryDataSum = 0
+    updateAllShareHistoryDataCount = 0
+
+    def update_share_history_data_by_codes(self,codes):
+        for code in codes:
+            self.updateAllShareHistoryDataCount += 1
+            self.update_share_history_data(code)
+            self._log("finish "+str(self.updateAllShareHistoryDataCount)+"/"+str(self.updateAllShareHistoryDataSum))
+
     def update_all_share_history_data(self):
         self._log("update all share history data");
         self.update_share_list()
         data = self.get_share_list()
         dataCodes = data.code
-        sumCount = len(dataCodes)
-        count = 0
-        for code in dataCodes:
-            count += 1
-            self.update_share_history_data(code)
-            self._log("finish "+str(count)+"/"+str(sumCount))
+        self.updateAllShareHistoryDataSum = len(dataCodes)
+        self.update_share_history_data_by_codes(dataCodes)
 
     def update_share_list(self):
         self._log("updata share list form internet")
