@@ -2,7 +2,7 @@ import tushare as ts
 import os
 import pandas as pd
 import time
-import thread
+import threading
 
 class DataBase:
 
