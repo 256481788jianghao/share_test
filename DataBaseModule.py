@@ -62,7 +62,7 @@ class DataBase:
             self._log("update data from internet code="+code+" but not get data")
 
     def _makeLocalShareDataPath(self,code):
-        timestr = time.strftime('%Y-%m-%d', time.localtime())
+        timestr = ''#time.strftime('%Y-%m-%d', time.localtime())
         codestr = self._formtInputCode(code)
         if not os.path.exists("./localShareData/"):
             os.mkdir("./localShareData/")
