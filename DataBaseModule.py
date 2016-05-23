@@ -21,7 +21,11 @@ class DataBase:
         data = self.get_share_list()
         dataCodes = data.code
         self.updateAllShareHistoryDataSum = len(dataCodes)
-        self.update_share_history_data_by_codes(dataCodes)
+        data1 = dataCodes[0:int(self.updateAllShareHistoryDataSum/2)]
+        data2 = dataCodes[int(self.updateAllShareHistoryDataSum/2):]
+        threading.Thread(target=self.update_share_history_data_by_codes,args=([data1])).start()
+        threading.Thread(target=self.update_share_history_data_by_codes,args=([data2])).start()
+        #self.update_share_history_data_by_codes(dataCodes)
 
     def update_share_list(self):
         self._log("updata share list form internet")
