@@ -21,8 +21,21 @@ def computeAttention(code, length):
         ans[1] = sum(lowValue[0:length])
         return ans
 
-        
-share_list_code = share_list.code
-for code in share_list_code:
-    
-    
+def getAttentionList(codelist,length):
+    dicttmp = {'highSum':[],'lowSum':[]}
+    for code in codelist:
+        ans = computeAttention(code,length)
+        dicttmp['highSum'].append(ans[0])
+        dicttmp['lowSum'].append(ans[1])
+    return pd.DataFrame(dicttmp)
+
+tmp = getAttentionList(share_list.code,30)
+
+share_list['highSum'] = tmp.highSum
+share_list['lowSum'] = tmp.lowSum
+
+sortedList = share_list.sort_values(by='lowSum',ascending=False)[0:20]
+
+print(sortedList[['name','industry']])
+
+
