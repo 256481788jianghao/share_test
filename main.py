@@ -15,34 +15,14 @@ def computeAttention(code, length):
         return [0,0]
     else:
         ans = [0,0]
-        for i in range(0,length):
-            ans[0] += data.high[i]*data.volume[i]*100
-            ans[1] += data.low[i]*data.volume[i]*100
+        highValue = data.high*data.volume*100
+        lowValue = data.low*data.volume*100
+        ans[0] = sum(highValue[0:length])
+        ans[1] = sum(lowValue[0:length])
         return ans
 
         
-dataAttention = []
 share_list_code = share_list.code
-share_list_len = len(share_list)
 for code in share_list_code:
-    #print(code)
-    if len(dataAttention) == 0:
-        datatmp = computeAttention(code,30)
-        datatmp.append(code)
-        dataAttention.append(datatmp)
-        #print(dataAttention)
-    else:
-        index = 0
-        datalen = len(dataAttention)
-        datatmp = computeAttention(code,30)
-        datatmp.append(code)
-        #print(datatmp)
-        for i in range(0,datalen):
-            if datatmp[1] > dataAttention[i][1]:
-                dataAttention.insert(i,datatmp)
-                break
-
-print(dataAttention)
     
-
     
