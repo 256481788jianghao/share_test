@@ -8,6 +8,7 @@ class DataBase:
 
     updateAllShareHistoryDataSum = 0
     updateAllShareHistoryDataCount = 0
+    indexNameMap = {'hs300':399300}
 
     def update_share_history_data_by_codes(self,codes):
         for code in codes:
@@ -20,6 +21,10 @@ class DataBase:
         self.update_share_list()
         data = self.get_share_list()
         dataCodes = data.code
+        for key in self.indexNameMap:
+            #print(self.indexNameMap[key])
+            dataCodes[len(dataCodes)] = self.indexNameMap[key]
+        #print(dataCodes)
         self.updateAllShareHistoryDataSum = len(dataCodes)
         data1 = dataCodes[0:int(self.updateAllShareHistoryDataSum/2)]
         data2 = dataCodes[int(self.updateAllShareHistoryDataSum/2):]
@@ -61,6 +66,14 @@ class DataBase:
         else:
             self._log("update data from internet code="+code+" but not get data")
 
+    def _isInIndexNameMap(self,name):
+        if name in indexNameMap.keys:
+            return True
+        return False
+
+    def _getIndexCode(self,name):
+        return indexNameMap[name]
+
     def _makeLocalShareDataPath(self,code):
         timestr = ''#time.strftime('%Y-%m-%d', time.localtime())
         codestr = self._formtInputCode(code)
@@ -88,5 +101,5 @@ if __name__ == "__main__":
     #dataBase._makeLocalShareDataPath(100)
     #dataBase.get_share_history_data(300512)
     dataBase.update_all_share_history_data()
-    #data = dataBase.get_share_list()
+    #data = ts.get_hist_data('399300')
     #print(data)
