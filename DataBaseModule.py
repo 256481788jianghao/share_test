@@ -9,6 +9,13 @@ class DataBase:
     updateAllShareHistoryDataSum = 0
     updateAllShareHistoryDataCount = 0
     indexNameMap = {'hs300':399300}
+    
+    def get_hs300_info(self):
+        data = ts.get_hs300s()
+        if isinstance(data,pd.DataFrame):
+            return data.sort_values(by='weight',ascending=False)
+        else:
+            return None
 
     def update_share_history_data_by_codes(self,codes):
         for code in codes:
@@ -100,6 +107,7 @@ if __name__ == "__main__":
     dataBase = DataBase()
     #dataBase._makeLocalShareDataPath(100)
     #dataBase.get_share_history_data(300512)
-    dataBase.update_all_share_history_data()
+    #dataBase.update_all_share_history_data()
     #data = ts.get_hist_data('399300')
     #print(data)
+    print(dataBase.get_hs300_info())
