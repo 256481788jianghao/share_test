@@ -35,7 +35,7 @@ class DataBase:
     def update_all_share_history_data(self):
         self.__log("update all share history data");
         self.__get_share_list_from_internet()
-        data = self.__get_share_list()
+        data = self.get_share_list_form_local()
         dataCodes = data.code
         for key in self.indexNameMap:
             #print(self.indexNameMap[key])
@@ -56,7 +56,7 @@ class DataBase:
     def __has_share_list_local(self):
         return os.path.exists("share_list.csv")
 
-    def __get_share_list(self):
+    def get_share_list_form_local(self):
         if self.__has_share_list_local():
             return pd.read_csv("share_list.csv")
         else:
