@@ -10,6 +10,8 @@ class DataBase:
     updateAllShareHistoryDataCount = 0
     indexNameMap = {'hs300':399300}
     
+    """===============================公有函数========================="""
+    
     """
     获得沪深300成份股的列表，以权重降序排序
     """
@@ -20,15 +22,7 @@ class DataBase:
         else:
             return None
         
-    """
-    获取codes列表指明的股票数据
-    """
-    def __update_share_history_data_by_codes(self,codes):
-        for code in codes:
-            self.updateAllShareHistoryDataCount += 1
-            self.update_share_history_data(code)
-            self.__log("finish "+str(self.updateAllShareHistoryDataCount)+"/"+str(self.updateAllShareHistoryDataSum))
-
+  
     """
     更新所有的股票信息
     """
@@ -47,22 +41,7 @@ class DataBase:
         threading.Thread(target=self.__update_share_history_data_by_codes,args=([data1])).start()
         threading.Thread(target=self.__update_share_history_data_by_codes,args=([data2])).start()
         #self.update_share_history_data_by_codes(dataCodes)
-
-    def __get_share_list_from_internet(self):
-        self.__log("updata share list form internet")
-        data = ts.get_stock_basics()
-        data.to_csv("share_list.csv",encoding='utf-8')
-
-    def __has_share_list_local(self):
-        return os.path.exists("share_list.csv")
-
-    def get_share_list_form_local(self):
-        if self.__has_share_list_local():
-            return pd.read_csv("share_list.csv")
-        else:
-            self.__log("can not find share_list.csv")
-            return None
-
+        
     """
     获取个股信息，如果有本地数据，先拿本地数据,如果没有本地数据，先更新，再拿本地数据
     """
@@ -73,10 +52,7 @@ class DataBase:
             return pd.read_csv(self.__makeLocalShareDataPath(code))
         else:
             return None
- 
-    def __has_share_history_local_data(self,codestr):
-        code = self.__formtInputCode(codestr)
-        return os.path.exists(self.__makeLocalShareDataPath(code))
+
 
     """
     更新个股信息
@@ -89,6 +65,42 @@ class DataBase:
             data.to_csv(self.__makeLocalShareDataPath(code),encoding='utf-8')
         else:
             self.__log("update data from internet code="+code+" but not get data")
+            
+    """
+    得到股票名称，代码，等信息列表
+    """        
+    def get_share_list_form_local(self):
+        if self.__has_share_list_local():
+            return pd.read_csv("share_list.csv")
+        else:
+            self.__log("can not find share_list.csv")
+            return None
+            
+    """==================================私有函数============================"""
+    
+    def __has_share_history_local_data(self,codestr):
+        code = self.__formtInputCode(codestr)
+        return os.path.exists(self.__makeLocalShareDataPath(code))
+        
+    """
+    获取codes列表指明的股票数据
+    """
+    def __update_share_history_data_by_codes(self,codes):
+        for code in codes:
+            self.updateAllShareHistoryDataCount += 1
+            self.update_share_history_data(code)
+            self.__log("finish "+str(self.updateAllShareHistoryDataCount)+"/"+str(self.updateAllShareHistoryDataSum))
+
+
+    def __get_share_list_from_internet(self):
+        self.__log("updata share list form internet")
+        data = ts.get_stock_basics()
+        data.to_csv("share_list.csv",encoding='utf-8')
+
+    def __has_share_list_local(self):
+        return os.path.exists("share_list.csv")
+
+
 
     def __isInIndexNameMap(self,name):
         if name in indexNameMap.keys:
