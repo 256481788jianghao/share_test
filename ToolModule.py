@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plxy
+import datetime
 
 class PlotTool:
     colors = ['red','blue','yellow','green','black']
@@ -19,6 +20,15 @@ class PlotTool:
         plxy.ylabel(ylabel)
         plxy.show()
 
+#得到包括今天在内过去n天的日期列表
+def getDateList(n=0,removeWeekend = True):
+    now = datetime.datetime.now()
+    deltalist = [datetime.timedelta(days=-x) for x in range(n*2+1)]
+    #print(deltalist)
+    n_days = [ now + delta for delta in deltalist]
+    if removeWeekend:
+        n_days = [x for x in n_days if x.weekday() < 5]
+    return [ x.strftime('%Y-%m-%d') for x in n_days ][0:n+1]
 
 if __name__ == '__main__':
     pt = PlotTool()
@@ -30,5 +40,6 @@ if __name__ == '__main__':
     y5=[t+0.5 for t in y4]
     y6=[t+0.5 for t in y5]
     XYs=[[x,y],[x,y2],[x,y3],[x,y4],[x,y5],[x,y6]]
-    pt.plotxy(XYs)
+    #pt.plotxy(XYs)
+    #getDateList(10)
     

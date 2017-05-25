@@ -15,7 +15,7 @@ class DataBase:
     """
     获得沪深300成份股的列表，以权重降序排序
     """
-    def get_hs300_info(self):
+    def get_hs300_sharelist(self):
         data = ts.get_hs300s()
         if isinstance(data,pd.DataFrame):
             return data.sort_values(by='weight',ascending=False)
@@ -50,6 +50,12 @@ class DataBase:
             return None
         else:
             return pd.read_csv(self.__makeLocalShareDataPath(code))
+        
+    """
+    获取沪深300指数信息
+    """
+    def get_hs300_data(self):
+        return self.get_share_history_data(self.indexNameMap['hs300'])
 
 
     """
