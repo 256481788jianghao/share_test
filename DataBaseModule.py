@@ -48,10 +48,8 @@ class DataBase:
     def get_share_history_data(self,code):
         if not self.__has_share_history_local_data(code):
             return None
-        if self.__has_share_history_local_data(code):
-            return pd.read_csv(self.__makeLocalShareDataPath(code))
         else:
-            return None
+            return pd.read_csv(self.__makeLocalShareDataPath(code))
 
 
     """

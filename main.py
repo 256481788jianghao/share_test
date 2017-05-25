@@ -1,32 +1,51 @@
 import DataBaseModule
 import pandas as pd
 
+print('初始化开始')
+
 dataBase = DataBaseModule.DataBase() 
 
 share_list = dataBase.get_share_list_form_local()
 
 all_codes = share_list.code #所有股票的代码
 
+all_hist_data = {}#所用历史数据
+
+for code in all_codes:
+    share = dataBase.get_share_history_data(code)
+    all_hist_data[code] = share
+
+print('初始化结束')
+
 #得到某一天的数据
 def getShareDataByDate(code,date):
-    share = dataBase.get_share_history_data(code)
+    share = all_hist_data[code]
     if type(share) == type(None):
         return None
-    return share[share.date == date]
+    tmp = share[share.date == date]
+    if not tmp.empty:
+        return tmp
+    else:
+        return None
 
+#得到某一天所用股票的历史数据，剔除当日没有数据的股票
+def getAllSharesDataByDate(date):
+    ansFrame = pd.DataFrame()
+    for code in all_codes:
+        share = getShareDataByDate(code,date)
+        if type(share) == type(None):
+            continue
+        ansFrame = pd.concat([ansFrame,share],ignore_index=True)
+    return ansFrame
+    
 #得到某一天的平均和中值换手率
 def getMidTurnoverByData(date):
-    ans_list = ""
-    for code in all_codes:
-        slist = getShareDataByDate(code,date)
-        if type(slist) == type(None):
-            continue
-        slist['code'] = code
-        print(code)
-        if type(ans_list) == type(""):
-            ans_list = slist
-        if not slist.empty:
-            ans_list.append(slist.iloc[0])
-    return ans_list
+    all_shares = getAllSharesDataByDate(date).sort_values(by='turnover')
+    num = len(all_shares)
+    mean_data = all_shares.mean()
+    mid_turnover = all_shares.turnover[int(num/2)]
+    mean_turnover = mean_data.turnover
+    return [mean_turnover,mid_turnover]
     
-print(getMidTurnoverByData('2017-05-23'))
+    
+print(getMidTurnoverByData('2017-05-15'))
