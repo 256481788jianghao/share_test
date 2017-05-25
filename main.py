@@ -31,11 +31,14 @@ def getShareDataByDate(code,date):
 #得到某一天所用股票的历史数据，剔除当日没有数据的股票
 def getAllSharesDataByDate(date):
     ansFrame = pd.DataFrame()
+    code_list =[]
     for code in all_codes:
         share = getShareDataByDate(code,date)
         if type(share) == type(None):
             continue
+        code_list.append(code)
         ansFrame = pd.concat([ansFrame,share],ignore_index=True)
+        ansFrame['code'] = code_list
     return ansFrame
     
 #得到某一天的平均和中值换手率
@@ -45,6 +48,8 @@ def getMidTurnoverByData(date):
     mean_data = all_shares.mean()
     mid_turnover = all_shares.turnover[int(num/2)]
     mean_turnover = mean_data.turnover
+    part_shares = all_shares[all_shares.turnover >= mean_turnover]
+    print(part_shares)
     return [mean_turnover,mid_turnover]
     
     
