@@ -33,6 +33,13 @@ def getDateList(n=0,removeWeekend = True):
 def dateToNum(date):
     return int(date.replace('-',''))
 
+def numToDate(num):
+    tmp = str(num)
+    y = tmp[0:4]
+    m = tmp[4:6]
+    d = tmp[6:len(tmp)]
+    return y+'-'+m+'-'+d
+
 if __name__ == '__main__':
     pt = PlotTool()
     x=[1,2,3,4]
