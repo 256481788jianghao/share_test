@@ -28,6 +28,8 @@ all_hist_data = []#所用历史数据临时列表
 for code in all_codes:
     share = dataBase.get_share_history_data(code)
     share['code'] = [code]*len(share)#增加股票代码
+    share_name = share_list_in_market[share_list_in_market.code == code].name.iloc[0]
+    share['name'] = [share_name]*len(share)
     all_hist_data.append(share)
     
 g_all_data = pd.concat(all_hist_data,ignore_index=True) #所有历史数据Frame
@@ -38,7 +40,7 @@ print('初始化结束')
 
 #得到某股的上市时间和上市天数
 def getToMarketDateAndDays(code):
-    date_num = share_list_in_market[share_list_in_market.code == code].timeToMarket.loc[0]
+    date_num = share_list_in_market[share_list_in_market.code == code].timeToMarket.iloc[0]
     date_str = tm.numToDate(date_num)
     dayObjNow = datetime.datetime.now()
     dayObjx   = datetime.datetime.strptime(date_str,'%Y-%m-%d')
