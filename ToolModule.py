@@ -30,6 +30,9 @@ def getDateList(n=0,removeWeekend = True):
         n_days = [x for x in n_days if x.weekday() < 5]
     return [ x.strftime('%Y-%m-%d') for x in n_days ][0:n+1]
 
+def dateToNum(date):
+    return int(date.replace('-',''))
+
 if __name__ == '__main__':
     pt = PlotTool()
     x=[1,2,3,4]

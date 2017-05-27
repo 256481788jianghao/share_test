@@ -6,53 +6,44 @@ print('初始化开始')
 
 dataBase = DataBaseModule.DataBase() 
 
-share_list = dataBase.get_share_list_form_local()
+#包括今天在内过去30个交易日的日期列表，不包括周六日
+days30 = tm.getDateList(29)
 
-all_codes = share_list.code #所有股票的代码
 
-all_hist_data = {}#所用历史数据
+all_share_list = dataBase.get_share_list_form_local()
+
+#剔除未上市的新股,剔除交易时间小于1个月的股票
+limitDateNum = tm.dateToNum(days30[29])
+#Filter = (all_share_list.timeToMarket != 0) & (all_share_list.timeToMarket <= limitDateNum)
+Filter = (all_share_list.timeToMarket != 0)
+share_list_in_market = all_share_list[Filter]
+
+
+print('过滤个股结束')
+
+all_codes = share_list_in_market.code #所有股票的代码
+
+all_hist_data = []#所用历史数据临时列表
 
 for code in all_codes:
     share = dataBase.get_share_history_data(code)
-    all_hist_data[code] = share
+    share['code'] = [code]*len(share)
+    all_hist_data.append(share)
+    
+g_all_data = pd.concat(all_hist_data,ignore_index=True) #所有历史数据Frame
                  
-hs300_hist_data = dataBase.get_hs300_data() #hs300历史数据
-
-
-#包括今天在内过去30个交易日的日期列表，不包括周六日
-days30 = tm.getDateList(29)
+g_hs300_data = dataBase.get_hs300_data() #hs300历史数据
 
 print('初始化结束')
 
 #得到某一天的数据
 def getShareDataByDate(code,date):
-    share = all_hist_data[code]
-    if type(share) == type(None):
-        return None
-    tmp = share[share.date == date]
-    if not tmp.empty:
-        return tmp
-    else:
-        return None
+    return g_all_data[(g_all_data.code == code) & (g_all_data.date == date)]
 
 #得到某一天所用股票的历史数据，剔除当日没有数据的股票
 def getAllSharesDataByDate(date):
     print("get all shares data of "+date)
-    ansFrame = pd.DataFrame()
-    code_list = []
-    share_list = []
-    for code in all_codes:
-        share = getShareDataByDate(code,date)
-        if type(share) == type(None):
-            continue
-        code_list.append(code)
-        share_list.append(share)
-        #ansFrame = pd.concat([ansFrame,share],ignore_index=True)
-    if len(share_list) > 0 :
-        ansFrame = pd.concat(share_list,ignore_index=True)
-        ansFrame['code'] = code_list
-    print("get all shares data of "+date+" end")
-    return ansFrame
+    return g_all_data[g_all_data.date == date]
     
 #得到某一天的平均和中值换手率以及有交易信息的股票数量
 def getTurnover(all_shares):
@@ -64,10 +55,9 @@ def getTurnover(all_shares):
         return None
     num = len(tmp)
     mean_data = tmp.mean()
-    mid_turnover = tmp.turnover[int(num/2)]
+    #print(type(tmp.turnover))
+    mid_turnover = tmp.turnover.iloc[int(num/2)]
     mean_turnover = mean_data.turnover
-    #part_shares = all_shares[all_shares.turnover >= mean_turnover]
-    #print(part_shares)
     return [mean_turnover,mid_turnover,num]
 
 """
