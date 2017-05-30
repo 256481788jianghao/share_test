@@ -72,6 +72,10 @@ def getTurnover(all_shares):
     mean_turnover = mean_data.turnover
     return [mean_turnover,mid_turnover,num]
 
+#得到最近n天的数据，0表示今天
+def getLastData(n):
+    g_all_data[g_all_data.date.apply(tm.dateToNum) >= tm.dateToNum(days30[n])]
+
 """
 #计算从今天到过去30个交易日内的，每天换手率的平均值和中位数
 mid_turnover_list = []
@@ -90,4 +94,18 @@ for day in days30:
 ans = pd.DataFrame({"day":days_list,'mean_turnover':mean_turnover_list,'mid_turnover':mid_turnover_list,'num':num_list})
 print(ans)
 """
-print(g_all_data)
+"""
+#得到近几日的交易变化
+def p_change_sum(x):
+    p_change = x.p_change+100
+    ans = 1
+    for p in p_change:
+        ans = ans * p
+    return p
+
+last5_data = g_all_data[g_all_data.date.apply(tm.dateToNum) > tm.dateToNum(days30[3])]
+p_change_data = last5_data.groupby('code').apply(p_change_sum)
+p_change_code = p_change_data[p_change_data > 105].index
+ans_share_list = share_list_in_market.loc[[c in p_change_code for c in share_list_in_market.code]]
+print(ans_share_list)
+"""
