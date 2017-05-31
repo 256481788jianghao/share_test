@@ -9,6 +9,7 @@ class DataBase:
     updateAllShareHistoryDataSum = 0
     updateAllShareHistoryDataCount = 0
     indexNameMap = {'hs300':399300}
+    store = pd.HDFStore("hdf_store.hd5")
     
     """===============================公有函数========================="""
     
@@ -16,11 +17,7 @@ class DataBase:
     获得沪深300成份股的列表，以权重降序排序
     """
     def get_hs300_sharelist(self):
-        data = ts.get_hs300s()
-        if isinstance(data,pd.DataFrame):
-            return data.sort_values(by='weight',ascending=False)
-        else:
-            return None
+        return self.store["hs300_sharelist"]
         
   
     """
@@ -28,28 +25,25 @@ class DataBase:
     """
     def update_all_share_history_data(self):
         self.__log("update all share history data");
-        self.__get_share_list_from_internet()
+        self.__update_share_list_from_internet()
         data = self.get_share_list_form_local()
-        dataCodes = data.code
+        dataCodes = list(data.index)
         for key in self.indexNameMap:
             #print(self.indexNameMap[key])
-            dataCodes[len(dataCodes)] = self.indexNameMap[key]
+            dataCodes.append(self.indexNameMap[key])
         #print(dataCodes)
         self.updateAllShareHistoryDataSum = len(dataCodes)
-        data1 = dataCodes[0:int(self.updateAllShareHistoryDataSum/2)]
-        data2 = dataCodes[int(self.updateAllShareHistoryDataSum/2):]
-        threading.Thread(target=self.__update_share_history_data_by_codes,args=([data1])).start()
-        threading.Thread(target=self.__update_share_history_data_by_codes,args=([data2])).start()
-        #self.update_share_history_data_by_codes(dataCodes)
+        #data1 = dataCodes[0:int(self.updateAllShareHistoryDataSum/2)]
+        #data2 = dataCodes[int(self.updateAllShareHistoryDataSum/2):]
+        #threading.Thread(target=self.__update_share_history_data_by_codes,args=([data1])).start()
+        #threading.Thread(target=self.__update_share_history_data_by_codes,args=([data2])).start()
+        self.__update_share_history_data_by_codes(dataCodes)
         
     """
     获取个股信息，如果有本地数据，先拿本地数据,如果没有本地数据，先更新，再拿本地数据
     """
     def get_share_history_data(self,code):
-        if not self.__has_share_history_local_data(code):
-            return None
-        else:
-            return pd.read_csv(self.__makeLocalShareDataPath(code))
+        return self.store['share_'+code]
         
     """
     获取沪深300指数信息
@@ -66,7 +60,7 @@ class DataBase:
         self.__log("update data from internet code="+code)
         data = ts.get_hist_data(code)
         if isinstance(data,pd.DataFrame):
-            data.to_csv(self.__makeLocalShareDataPath(code),encoding='utf-8')
+            self.store['share_'+code] = data
         else:
             self.__log("update data from internet code="+code+" but not get data")
             
@@ -74,13 +68,15 @@ class DataBase:
     得到股票名称，代码，等信息列表
     """        
     def get_share_list_form_local(self):
-        if self.__has_share_list_local():
-            return pd.read_csv("share_list.csv")
-        else:
-            self.__log("can not find share_list.csv")
-            return None
+        return self.store['all_share_list']
             
+    def update_all(self):
+        self.__update_hs300_sharelist()
+        self.update_all_share_history_data()
     """==================================私有函数============================"""
+    def __update_hs300_sharelist(self):
+        data = ts.get_hs300s()
+        self.store['hs300_sharelist'] = data
     
     def __has_share_history_local_data(self,codestr):
         code = self.__formtInputCode(codestr)
@@ -96,10 +92,11 @@ class DataBase:
             self.__log("finish "+str(self.updateAllShareHistoryDataCount)+"/"+str(self.updateAllShareHistoryDataSum))
 
 
-    def __get_share_list_from_internet(self):
+    def __update_share_list_from_internet(self):
         self.__log("updata share list form internet")
         data = ts.get_stock_basics()
-        data.to_csv("share_list.csv",encoding='utf-8')
+        self.store['all_share_list'] = data
+        return data
 
     def __has_share_list_local(self):
         return os.path.exists("share_list.csv")
@@ -107,12 +104,12 @@ class DataBase:
 
 
     def __isInIndexNameMap(self,name):
-        if name in indexNameMap.keys:
+        if name in self.indexNameMap.keys:
             return True
         return False
 
     def __getIndexCode(self,name):
-        return indexNameMap[name]
+        return self.indexNameMap[name]
 
     def __makeLocalShareDataPath(self,code):
         timestr = ''#time.strftime('%Y-%m-%d', time.localtime())
@@ -138,9 +135,11 @@ class DataBase:
 
 if __name__ == "__main__":
     dataBase = DataBase()
+    dataBase.update_all()
+    #print(dataBase.get_hs300_sharelist())
     #dataBase._makeLocalShareDataPath(100)
     #dataBase.get_share_history_data(300512)
-    dataBase.update_all_share_history_data()
+    #dataBase.update_all_share_history_data()
     #data = ts.get_hist_data('399300')
     #print(data)
     #print(dataBase.get_hs300_info())
