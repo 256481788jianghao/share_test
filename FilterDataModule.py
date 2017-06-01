@@ -67,4 +67,4 @@ all_data = pd.concat(tmp_list,ignore_index= True)
 
 
 if __name__ == '__main__':
-    print(all_data.columns)
+    print(type(all_data.timeToMarket[0]))
