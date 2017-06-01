@@ -3,6 +3,7 @@ import tushare as ts
 import pandas as pd
 #import time
 #import threading
+import datetime as dtime
 
 class DataBase:
 
@@ -78,12 +79,54 @@ class DataBase:
     """        
     def get_share_list_form_local(self):
         return self.store['all_share_list']
+    
+    def update_all_report_data(self):
+        timeset = self.__get_Q_list()
+        for time in timeset:
+            self.__update_report_data(time[0],time[1])
             
     def update_all(self):
         self.__update_hs300_sharelist()
         self.update_all_share_history_data()
         self.store.close()
     """==================================私有函数============================"""
+    def __date_to_q(self,date):
+        tmp = date.split('-')
+        q = 1
+        if tmp[1] in ['01','02','03']:
+            q = 1
+        elif tmp[1] in ['04','05','06']:
+            q = 2
+        elif tmp[1] in ['07','08','09']:
+            q = 3
+        else:
+            q = 4
+        return (int(tmp[0]),q)
+    
+    def __get_Q_list(self):
+        now = dtime.datetime.now()
+        deltalist = [dtime.timedelta(days=-x*30) for x in range(36)]
+        n_days = [ now + delta for delta in deltalist]
+        time_list = [ x.strftime('%Y-%m') for x in n_days ]
+        q_list = [self.__date_to_q(x) for x in time_list]
+        return set(q_list)
+        
+    def __update_report_data(self,year,index):
+        try:
+            data1 = ts.get_report_data(year,index)
+            data2 = ts.get_profit_data(year,index)
+            data3 = ts.get_operation_data(year,index)
+            data4 = ts.get_growth_data(year,index)
+            data5 = ts.get_debtpaying_data(year,index)
+            data6 = ts.get_cashflow_data(year,index)
+            self.store['report_data_'+str(year)+'_'+str(index)] = data1
+            self.store['profit_data_'+str(year)+'_'+str(index)] = data2
+            self.store['operation_data_'+str(year)+'_'+str(index)] = data3
+            self.store['growth_data_'+str(year)+'_'+str(index)] = data4
+            self.store['debtpaying_data_'+str(year)+'_'+str(index)] = data5
+            self.store['cashflow_data_'+str(year)+'_'+str(index)] = data6
+        except:
+            print("xxxx")
     
     def __update_hs300_sharelist(self):
         print("更新hs300数据")
@@ -131,6 +174,7 @@ class DataBase:
 
 if __name__ == "__main__":
     dataBase = DataBase()
+    #dataBase.update_all_report_data()
     #dataBase.update_all()
     #print(dataBase.get_hs300_sharelist())
     #dataBase._makeLocalShareDataPath(100)
