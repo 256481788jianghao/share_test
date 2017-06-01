@@ -20,16 +20,18 @@ Filter = (all_share_list.timeToMarket != 0)
 share_list_in_market = all_share_list[Filter]
 
 print('过滤个股结束')
-
-all_codes = share_list_in_market.code #所有股票的代码
+all_codes = list(share_list_in_market.index) #所有股票的代码
 
 all_hist_data = []#所用历史数据临时列表
 
 for code in all_codes:
     share = dataBase.get_share_history_data(code)
+    if not isinstance(share,pd.DataFrame):
+        continue
     share['code'] = [code]*len(share)#增加股票代码
-    share_name = share_list_in_market[share_list_in_market.code == code].name.iloc[0]
+    share_name = share_list_in_market.loc[code,'name'][0]
     share['name'] = [share_name]*len(share)
+    share['date'] = share.index
     all_hist_data.append(share)
     
 g_all_data = pd.concat(all_hist_data,ignore_index=True) #所有历史数据Frame
@@ -94,6 +96,7 @@ for day in days30:
 ans = pd.DataFrame({"day":days_list,'mean_turnover':mean_turnover_list,'mid_turnover':mid_turnover_list,'num':num_list})
 print(ans)
 """
+
 """
 #得到近几日的交易变化
 def p_change_sum(x):

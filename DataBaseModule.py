@@ -45,7 +45,14 @@ class DataBase:
     获取个股信息，如果有本地数据，先拿本地数据,如果没有本地数据，先更新，再拿本地数据
     """
     def get_share_history_data(self,code):
-        return self.store['share_'+code]
+        try:
+            data = self.store['share_'+code]
+            if not isinstance(data,pd.DataFrame):
+                return None
+            else:
+                return data
+        except:
+            return None
         
     """
     获取沪深300指数信息
