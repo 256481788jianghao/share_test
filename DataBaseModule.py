@@ -115,6 +115,12 @@ class DataBase:
         self.__log("---init---")
         self.store = pd.HDFStore("hdf_store.hd5")
         print(self.store)
+    
+    def __del__(self):
+        self.__log("---del---")
+        if self.store.is_open:
+            self.__log("close store")
+            self.store.close()
 
 if __name__ == "__main__":
     dataBase = DataBase()
