@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import DataBaseModule
 import pandas as pd
+import ToolModule as tm
 """
 date：日期
 open：开盘价
@@ -40,7 +41,9 @@ profit,利润同比(%)
 gpr,毛利率(%)
 npr,净利润率(%)
 holders,股东人数
+dateToMarket 上市时间字符串
 """
+print('---filter data start---')
 
 #原始数据库
 dataBase = DataBaseModule.DataBase()
@@ -50,6 +53,7 @@ all_share_list = dataBase.get_share_list_form_local()
 
 #所有股票代码
 all_share_codes = list(all_share_list.index)
+all_share_list['code'] = all_share_codes
 
 tmp_list = []
 for code in all_share_codes:
@@ -58,13 +62,14 @@ for code in all_share_codes:
         continue
     tmp['date'] = tmp.index
     tmp['code'] = code
-    for item in all_share_list.columns:
-        tmp[item] = all_share_list.loc[[code],item][0]
+    tmp = pd.merge(tmp,all_share_list.loc[[code]],on='code')
     tmp_list.append(tmp)
 
 #将所用的零散信息整理到一张表上
 all_data = pd.concat(tmp_list,ignore_index= True)
+all_data['dateToMarket'] = all_data.timeToMarket.apply(tm.numToDate)
 
+print('---filter data end---')
 
 if __name__ == '__main__':
-    print(type(all_data.timeToMarket[0]))
+    print(all_data.columns)

@@ -139,7 +139,7 @@ class DataBase:
     获取codes列表指明的股票数据
     """
     def __update_share_history_data_by_codes(self,codes):
-        for code in codes[0:5]:
+        for code in codes:
             self.updateAllShareHistoryDataCount += 1
             self.update_share_history_data(code)
             self.__log("finish "+str(self.updateAllShareHistoryDataCount)+"/"+str(self.updateAllShareHistoryDataSum))
@@ -164,7 +164,8 @@ class DataBase:
     def __init__(self):
         self.__log("---init---")
         self.store = pd.HDFStore("hdf_store.hd5")
-        print(self.store)
+        self.__log('---init end---')
+        #print(self.store)
     
     def __del__(self):
         self.__log("---del---")
