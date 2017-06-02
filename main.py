@@ -1,17 +1,13 @@
-import DataBaseModule
 import pandas as pd
 import ToolModule as tm
-import datetime
-
+#import datetime
 import FilterDataModule as fd
 
 print('初始化开始')
 
-dataBase = DataBaseModule.DataBase() 
-
 g_all_data = fd.all_data
 
-g_hs300_data = dataBase.get_hs300_data() #hs300历史数据
+#g_hs300_data = dataBase.get_hs300_data() #hs300历史数据
 
 print('初始化结束')
 
@@ -52,20 +48,30 @@ def getTurnover(all_shares):
 
     
 #得到最近N天价格变化超过p的股票
-def getShareListNP(dataList,P):
+def getShareListNP(startDate,endDate,P):
     def p_change_sum(x):
         p_change = x.p_change+100
         ans = 1
         for p in p_change:
             ans = ans * p
         return p
-    lastNData = g_all_data[[date in dataList for date in g_all_data.date]]
+    def filterDate(date):
+        dateNum = tm.dateToNum(date)
+        return dateNum >= startDate and dateNum <= endDate
+    lastNData = g_all_data[g_all_data.date.apply(filterDate)]
     p_change_data = lastNData.groupby('code').apply(p_change_sum)
     p_change_code = p_change_data[p_change_data > P].index
-    ansData = lastNData[[code in p_change_code for code in lastNData.code]]
-    print(ansData.groupby('code').mean()[['pe','turnover']])
+                                 
+    def filterCode(code):
+        return code in p_change_code
+    ansData = lastNData[lastNData.code.apply(filterCode)]
+    return ansData
 
-getShareListNP(['2017-05-31','2017-05-26','2017-05-25'],105)
+ans1 = getShareListNP(20170526,20170601,105)
+ans2 = getShareListNP(20170523,20170525,103)
+ans3 = ans2['code'].drop_duplicates().apply(lambda x: x in ans1.code)
+print(ans3)
+
 
 
 

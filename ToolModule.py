@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plxy
 import datetime
+import time
 
 class PlotTool:
     colors = ['red','blue','yellow','green','black']
@@ -39,6 +40,10 @@ def numToDate(num):
     m = tmp[4:6]
     d = tmp[6:len(tmp)]
     return y+'-'+m+'-'+d
+
+def getNow():
+    now = time.time()
+    return now
 
 if __name__ == '__main__':
     pt = PlotTool()

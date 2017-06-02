@@ -43,14 +43,22 @@ npr,净利润率(%)
 holders,股东人数
 dateToMarket 上市时间字符串
 """
-print('---filter data start---')
 
+print('---filter data start---')
+startM0 = tm.getNow()
+def printTime(n):
+    global startM0
+    print(str(n)+':'+str(tm.getNow()-startM0))
+    startM0 = tm.getNow()
+    
 #原始数据库
 dataBase = DataBaseModule.DataBase()
 
+printTime(1)
 #股票代码，市盈率等信息列表
 all_share_list = dataBase.get_share_list_form_local()
 
+printTime(2)
 #所有股票代码
 all_share_codes = list(all_share_list.index)
 all_share_list['code'] = all_share_codes
@@ -63,13 +71,17 @@ for code in all_share_codes:
     tmp['date'] = tmp.index
     tmp['code'] = code
     tmp = pd.merge(tmp,all_share_list.loc[[code]],on='code')
+    tmp['dateToMarket'] = tmp.timeToMarket.apply(tm.numToDate)
     tmp_list.append(tmp)
+
+printTime(3)
 
 #将所用的零散信息整理到一张表上
 all_data = pd.concat(tmp_list,ignore_index= True)
-all_data['dateToMarket'] = all_data.timeToMarket.apply(tm.numToDate)
+
+printTime(4)
 
 print('---filter data end---')
-
+ 
 if __name__ == '__main__':
     print(all_data.columns)
