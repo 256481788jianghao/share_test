@@ -81,6 +81,10 @@ printTime(3)
 #将所用的零散信息整理到一张表上
 all_data = pd.concat(tmp_list,ignore_index= True)
 
+all_data_json = all_data.to_json()
+
+all_data_json_len = len(all_data_json)
+
 printTime(4)
 
 print('---filter data end---')
@@ -93,7 +97,7 @@ if __name__ == '__main__':
     
     HOST=''
     PORT=1122  #设置侦听端口
-    BUFSIZ=1024
+    BUFSIZE=1024
     ADDR=(HOST, PORT)
     sock=socket(AF_INET, SOCK_STREAM)
     
@@ -102,13 +106,16 @@ if __name__ == '__main__':
     sock.listen(5)
     #设置退出条件
     STOP_CHAT=False
+    
+    data_send_count = 0
+    
     while not STOP_CHAT:
         print('等待接入，侦听端口:%d' % (PORT))
         tcpClientSock, addr=sock.accept()
         print('接受连接，客户端地址：',addr)
         while True:
             try:
-                data=tcpClientSock.recv(BUFSIZ)
+                data=tcpClientSock.recv(BUFSIZE)
             except:
                 #print(e)
                 tcpClientSock.close()
@@ -120,12 +127,29 @@ if __name__ == '__main__':
             #对日期进行一下格式化
             ISOTIMEFORMAT='%Y-%m-%d %X'
             stime=time.strftime(ISOTIMEFORMAT, localtime())
-            s='%s发送给我的信息是:%s' %(addr[0],data.decode('utf8'))
-            tcpClientSock.send(s.encode('utf8'))
+            #s='[Server] %s发送给我的请求是:%s' %(addr[0],data.decode('utf8'))
+            #tcpClientSock.send(s.encode('utf8'))
             print([stime], ':', data.decode('utf8'))
-            #如果输入quit(忽略大小写),则程序退出
-            STOP_CHAT=(data.decode('utf8').upper()=="QUIT")
-            if STOP_CHAT:
+            
+            CMD = data.decode('utf8').upper()
+            if CMD == 'QUIT':
+                STOP_CHAT = True
                 break
+            elif CMD == 'DATA_LEN':
+                s = str(all_data_json_len)
+                tcpClientSock.send(s.encode('utf8'))
+            elif CMD == 'DATA_SEND':
+                start = BUFSIZE*data_send_count
+                if start >= all_data_json_len:
+                    s = 'ALL_DATA_END'
+                    tcpClientSock.send(s.encode('utf8'))
+                    continue
+                not_send_len = all_data_json_len - start
+                if not_send_len < BUFSIZE:
+                    s = all_data_json[start:(start+not_send_len)]
+                else:
+                    s = all_data_json[start:(start+BUFSIZE)]
+                data_send_count = data_send_count + 1
+                tcpClientSock.send(s.encode('utf8'))
     tcpClientSock.close()
     sock.close()
