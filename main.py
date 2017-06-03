@@ -67,11 +67,13 @@ def getShareListNP(startDate,endDate,P):
     ansData = lastNData[lastNData.code.apply(filterCode)]
     return ansData
 
-ans1 = getShareListNP(20170526,20170601,105)
-ans2 = getShareListNP(20170523,20170525,103)
-ans3 = ans2['code'].drop_duplicates().apply(lambda x: x in ans1.code)
-print(ans3)
-
+ans1 = getShareListNP(20170526,20170601,101)
+ans2 = getShareListNP(20170523,20170525,101)
+code1 = set(list(ans1.code))
+code2 = set(list(ans2.code))
+code3 = code1 & code2
+print(len(code3)/len(code2))
+print(ans2[ans2.code.apply(lambda x:x in code3)]['dateToMarket'])
 
 
 
