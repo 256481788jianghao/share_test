@@ -3,6 +3,7 @@ import DataBaseModule
 import pandas as pd
 import ToolModule as tm
 import datetime
+import gc
 """
 date：日期
 open：开盘价
@@ -85,6 +86,10 @@ all_data_json = all_data.to_json()
 
 all_data_json_len = len(all_data_json)
 
+del all_data
+gc.collect()
+
+
 printTime(4)
 
 print('---filter data end---')
@@ -136,7 +141,8 @@ if __name__ == '__main__':
                 STOP_CHAT = True
                 break
             elif CMD == 'DATA_LEN':
-                s = str(all_data_json_len)
+                data_send_count = 0
+                s = 'DATA_LEN:'+str(all_data_json_len)
                 tcpClientSock.send(s.encode('utf8'))
             elif CMD == 'DATA_SEND':
                 start = BUFSIZE*data_send_count
@@ -149,10 +155,13 @@ if __name__ == '__main__':
                     s = all_data_json[start:(start+not_send_len)]
                 else:
                     s = all_data_json[start:(start+BUFSIZE)]
+                s = 'DATA_SEND:'+s
                 data_send_count = data_send_count + 1
                 tcpClientSock.send(s.encode('utf8'))
+            elif CMD == 'DATA_RESET':
+                data_send_count = 0
             else:
-                s = 'no this cmd\n'
+                s = 'CMD_NOT_FIND'
                 tcpClientSock.send(s.encode('utf8'))
     tcpClientSock.close()
     sock.close()
