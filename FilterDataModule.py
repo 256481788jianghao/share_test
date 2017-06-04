@@ -151,5 +151,8 @@ if __name__ == '__main__':
                     s = all_data_json[start:(start+BUFSIZE)]
                 data_send_count = data_send_count + 1
                 tcpClientSock.send(s.encode('utf8'))
+            else:
+                s = 'no this cmd\n'
+                tcpClientSock.send(s.encode('utf8'))
     tcpClientSock.close()
     sock.close()
