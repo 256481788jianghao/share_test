@@ -73,7 +73,7 @@ code1 = set(list(ans1.code))
 code2 = set(list(ans2.code))
 code3 = code1 & code2
 print(len(code3)/len(code2))
-print(ans2[ans2.code.apply(lambda x:x in code3)]['dateToMarket'])
+print(ans2[ans2.code.apply(lambda x:x in code3)]['daysToMarket'])
 
 
 

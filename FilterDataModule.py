@@ -44,6 +44,7 @@ gpr,毛利率(%)
 npr,净利润率(%)
 holders,股东人数
 dateToMarket 上市时间字符串
+daysToMarket 截止到目前的上市时间
 """
 
 print('---filter data start---')
@@ -59,7 +60,16 @@ dataBase = DataBaseModule.DataBase()
 printTime(1)
 #股票代码，市盈率等信息列表
 all_share_list = dataBase.get_share_list_form_local()
+all_share_list = all_share_list[all_share_list.timeToMarket != 0]
 all_share_list['dateToMarket'] = all_share_list.timeToMarket.apply(tm.numToDate)
+
+def __daysToMarket(date):
+    if type(date) != type('str') or len(date) < 10:
+        return -1
+    dateToM = datetime.datetime.strptime(date,'%Y-%m-%d')
+    delta = datetime.datetime.now() - dateToM
+    return delta.days
+all_share_list['daysToMarket'] = all_share_list.dateToMarket.apply(__daysToMarket)
 
 printTime(2)
 #所有股票代码
