@@ -82,12 +82,12 @@ printTime(3)
 #将所用的零散信息整理到一张表上
 all_data = pd.concat(tmp_list,ignore_index= True)
 
-all_data_json = all_data.to_json()
+#all_data_json = all_data.to_json()
 
-all_data_json_len = len(all_data_json)
+#all_data_json_len = len(all_data_json)
 
-del all_data
-gc.collect()
+#del all_data
+#gc.collect()
 
 
 printTime(4)
