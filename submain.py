@@ -12,7 +12,7 @@ class TcpClient:
     HOST='127.0.0.1'
     #设置侦听端口
     PORT=1122 
-    BUFSIZ=1024
+    BUFSIZ=1024*10
     ADDR=(HOST, PORT)
     def __init__(self):
         self.client=socket(AF_INET, SOCK_STREAM)
@@ -22,7 +22,7 @@ class TcpClient:
         data_rec_len = 0
         data_rec_json = ''
         while True:
-            #data=input('>')
+            data_cmd=input('>')
             #if not data:
                 #break
             #python3传递的是bytes，所以要编码
@@ -36,10 +36,10 @@ class TcpClient:
             elif data.decode('utf8')[0:9] == 'DATA_LEN:':
                 data_rec_len = str(data.decode('utf8')[10:-1])
                 print('data_len='+data_rec_len)
-                data_cmd = 'data_send'
+                #data_cmd = 'data_send'
             elif data.decode('utf8')[0:10] == 'DATA_SEND:':
                 data_rec_json += data.decode('utf8')[11:-1]
-                print('data_rec_json_len='+str(len(data_rec_len)/len(data_rec_json)))
+                print('data_rec_json_len='+str(len(data_rec_json)))
             elif data.decode('utf8') == 'ALL_DATA_END':
                 print('data_rec_json_len='+str(len(data_rec_json)))
                 break

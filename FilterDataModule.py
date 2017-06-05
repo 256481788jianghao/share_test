@@ -102,7 +102,7 @@ if __name__ == '__main__':
     
     HOST=''
     PORT=1122  #设置侦听端口
-    BUFSIZE=1024
+    BUFSIZE=1024*10
     ADDR=(HOST, PORT)
     sock=socket(AF_INET, SOCK_STREAM)
     
