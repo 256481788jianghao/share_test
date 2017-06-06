@@ -75,7 +75,8 @@ printTime(2)
 #所有股票代码
 all_share_codes = list(all_share_list.index)
 all_share_list['code'] = all_share_codes
-
+all_share_list['esp'] = all_share_list['esp'].apply(tm.strToFloat)            
+printTime(3)
 tmp_list = []
 for code in all_share_codes:
     tmp = dataBase.get_share_history_data(code)
@@ -87,7 +88,7 @@ for code in all_share_codes:
     #tmp['dateToMarket'] = tmp.timeToMarket.apply(tm.numToDate)
     tmp_list.append(tmp)
 
-printTime(3)
+printTime(4)
 
 #将所用的零散信息整理到一张表上
 all_data = pd.concat(tmp_list,ignore_index= True)
@@ -100,7 +101,7 @@ all_data = pd.concat(tmp_list,ignore_index= True)
 #gc.collect()
 
 
-printTime(4)
+printTime(5)
 
 print('---filter data end---')
  

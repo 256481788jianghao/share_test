@@ -45,6 +45,20 @@ def getNow():
     now = time.time()
     return now
 
+def strToFloat(string):
+    #str_len = len(string)
+    tmp = string
+    try:
+        return float(tmp)
+    except:
+        print(tmp)
+        i = -1
+        while not tmp[i].isdigit():
+            tmp = tmp[0:i]
+            i = i -1
+        print(tmp)
+        return float(tmp)
+
 if __name__ == '__main__':
     pt = PlotTool()
     x=[1,2,3,4]
