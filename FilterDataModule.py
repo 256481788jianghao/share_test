@@ -70,6 +70,10 @@ def __daysToMarket(date):
     delta = datetime.datetime.now() - dateToM
     return delta.days
 all_share_list['daysToMarket'] = all_share_list.dateToMarket.apply(__daysToMarket)
+
+#剔除所用上市时间小于7天的
+all_share_list = all_share_list[all_share_list.daysToMarket > 7]
+
 all_share_list['esp'] = all_share_list['esp'].apply(tm.strToFloat) 
 
 printTime(2)
