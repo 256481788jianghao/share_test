@@ -32,7 +32,7 @@ liquidAssets,流动资产
 fixedAssets,固定资产
 reserved,公积金
 reservedPerShare,每股公积金
-esp,每股收益
+esp,每股收益(%)
 bvps,每股净资
 pb,市净率
 timeToMarket,上市日期

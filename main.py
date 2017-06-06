@@ -67,13 +67,42 @@ def getShareListNP(startDate,endDate,P):
     ansData = lastNData[lastNData.code.apply(filterCode)]
     return ansData
 
-ans1 = getShareListNP(20170526,20170601,101)
-ans2 = getShareListNP(20170523,20170525,101)
+condition = 'npr'
+ans1 = getShareListNP(20170512,20170516,102)
+ans2 = getShareListNP(20170509,20170511,102)
 code1 = set(list(ans1.code))
 code2 = set(list(ans2.code))
 code3 = code1 & code2
 print(len(code3)/len(code2))
-print(ans2[ans2.code.apply(lambda x:x in code3)]['daysToMarket'])
+print(len(code3))
+ans4 = ans2[ans2.code.apply(lambda x:x in code3)]
+print(ans4[condition].mean())
+print(ans4[condition].median())
+print(ans4[condition].var())
+print("=====================================================================")
+ans1 = getShareListNP(20160512,20160516,102)
+ans2 = getShareListNP(20160509,20160511,102)
+code1 = set(list(ans1.code))
+code2 = set(list(ans2.code))
+code3 = code1 & code2
+print(len(code3)/len(code2))
+print(len(code3))
+ans4 = ans2[ans2.code.apply(lambda x:x in code3)]
+print(ans4[condition].mean())
+print(ans4[condition].median())
+print(ans4[condition].var())
+print("=====================================================================")
+ans1 = g_all_data
+#ans2 = getShareListNP(20160509,20160511,101)
+code1 = set(list(ans1.code))
+#code2 = set(list(ans2.code))
+#code3 = code1 & code2
+#print(len(code3)/len(code2))
+print(len(code1))
+#ans4 = ans2[ans2.code.apply(lambda x:x in code3)].sort_values(by='daysToMarket')
+print(ans1[condition].mean())
+print(ans1[condition].median())
+print(ans1[condition].var())
 
 
 
