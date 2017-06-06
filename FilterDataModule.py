@@ -70,12 +70,13 @@ def __daysToMarket(date):
     delta = datetime.datetime.now() - dateToM
     return delta.days
 all_share_list['daysToMarket'] = all_share_list.dateToMarket.apply(__daysToMarket)
+all_share_list['esp'] = all_share_list['esp'].apply(tm.strToFloat) 
 
 printTime(2)
 #所有股票代码
 all_share_codes = list(all_share_list.index)
 all_share_list['code'] = all_share_codes
-all_share_list['esp'] = all_share_list['esp'].apply(tm.strToFloat)            
+          
 printTime(3)
 tmp_list = []
 for code in all_share_codes:
