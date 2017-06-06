@@ -79,7 +79,7 @@ all_share_list['code'] = all_share_codes
           
 printTime(3)
 def getHisDataByCode(code):
-    tmp = dataBase.get_share_history_data(code)
+    tmp = dataBase.get_share_history_data(str(code))
     if not isinstance(tmp,pd.DataFrame):
         return None
     tmp['date'] = tmp.index
