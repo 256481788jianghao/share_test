@@ -78,6 +78,14 @@ all_share_codes = list(all_share_list.index)
 all_share_list['code'] = all_share_codes
           
 printTime(3)
+def getHisDataByCode(code):
+    tmp = dataBase.get_share_history_data(code)
+    if not isinstance(tmp,pd.DataFrame):
+        return None
+    tmp['date'] = tmp.index
+    tmp['code'] = code
+    return tmp
+"""
 tmp_list = []
 for code in all_share_codes:
     tmp = dataBase.get_share_history_data(code)
@@ -88,12 +96,13 @@ for code in all_share_codes:
     tmp = pd.merge(tmp,all_share_list.loc[[code]],on='code')
     #tmp['dateToMarket'] = tmp.timeToMarket.apply(tm.numToDate)
     tmp_list.append(tmp)
-
+"""
 printTime(4)
 
+"""
 #将所用的零散信息整理到一张表上
 all_data = pd.concat(tmp_list,ignore_index= True)
-
+"""
 #all_data_json = all_data.to_json()
 
 #all_data_json_len = len(all_data_json)

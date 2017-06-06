@@ -54,7 +54,7 @@ def getShareListNP(startDate,endDate,P):
         ans = 1
         for p in p_change:
             ans = ans * p
-        return p
+        return ans
     def filterDate(date):
         dateNum = tm.dateToNum(date)
         return dateNum >= startDate and dateNum <= endDate
@@ -67,7 +67,7 @@ def getShareListNP(startDate,endDate,P):
     ansData = lastNData[lastNData.code.apply(filterCode)]
     return ansData
 
-condition = 'npr'
+condition = 'turnover'
 ans1 = getShareListNP(20170512,20170516,102)
 ans2 = getShareListNP(20170509,20170511,102)
 code1 = set(list(ans1.code))
