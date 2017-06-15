@@ -30,18 +30,30 @@ def p_change_sum(x):
             ans = ans * ((p+100)/100)
         return (ans-1)*100
 
-p = []
-t = []  
-for code in fd.all_share_codes:
-    data = getData(code,'2017-06-01','2017-05-26')
-    p.append(p_change_sum(data.p_change))
-    t.append(turnover_sum(data.turnover))
+def getDataFrom(date1,date2):
+    p = []
+    t = [] 
+    for code in fd.all_share_codes:
+        data = getData(code,date1,date2)
+        p.append(p_change_sum(data.p_change))
+        t.append(turnover_sum(data.turnover))
+    ans = pd.DataFrame({'p':p,'code':fd.all_share_codes,'t':t,'d':fd.all_share_list.daysToMarket,'n':fd.all_share_list.name})
+    return ans
 
-ans = pd.DataFrame({'p':p,'code':fd.all_share_codes,'t':t})
-filter_ans = ans[(ans.p > 2) & (ans.p < 5)]
-print(filter_ans.mean())
-print(filter_ans.median())
-print('============================================')
-print(ans.mean())
-print(ans.median())
-print(filter_ans)
+data1 = getDataFrom('2017-06-09','2017-06-07')
+data2 = getDataFrom('2017-06-06','2017-05-01')
+
+data2_up = data2[data2.p > 0]
+data2_down = data2[data2.p <= 0]
+data1_up = data1[data1.p > 5]
+
+data2_up_codes = set(list(data2_up.index))
+data2_down_codes = set(list(data2_down.index))
+data1_up_codes = set(list(data1_up.index))
+
+data2_up_len = len(data2_up_codes)
+data2_down_len = len(data2_down_codes)
+
+print(len(data1_up_codes))
+print(len(data2_up_codes & data1_up_codes)/len(data2_down_codes & data1_up_codes))
+#print(len(data2_down_codes & data1_up_codes)/data2_down_len)
