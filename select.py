@@ -41,19 +41,12 @@ def getDataFrom(date1,date2):
     return ans
 
 data1 = getDataFrom('2017-06-09','2017-06-07')
-data2 = getDataFrom('2017-06-06','2017-05-01')
 
-data2_up = data2[data2.p > 0]
-data2_down = data2[data2.p <= 0]
-data1_up = data1[data1.p > 5]
+data2 = data1[data1.t > 20]
+data21 = data1[data1.t <= 20]
 
-data2_up_codes = set(list(data2_up.index))
-data2_down_codes = set(list(data2_down.index))
-data1_up_codes = set(list(data1_up.index))
-
-data2_up_len = len(data2_up_codes)
-data2_down_len = len(data2_down_codes)
-
-print(len(data1_up_codes))
-print(len(data2_up_codes & data1_up_codes)/len(data2_down_codes & data1_up_codes))
-#print(len(data2_down_codes & data1_up_codes)/data2_down_len)
+data3 = fd.all_share_list.loc[data2.index]
+print(data2.mean())
+print(data2.var())
+print(data21.var())
+print(data3.mean())
