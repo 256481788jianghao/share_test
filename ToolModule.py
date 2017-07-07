@@ -69,6 +69,6 @@ if __name__ == '__main__':
     y5=[t+0.5 for t in y4]
     y6=[t+0.5 for t in y5]
     XYs=[[x,y],[x,y2],[x,y3],[x,y4],[x,y5],[x,y6]]
-    #pt.plotxy(XYs)
+    pt.plotxy(XYs)
     #getDateList(10)
     

@@ -100,6 +100,20 @@ for key in dateDict:
             g_store[name] = operation
         else:
             print('operation is not a dataframe')
+        name = 'growth_'+str(key)+'_'+str(index)
+        print('start get '+name)
+        growth = ts.get_growth_data(key,index)
+        if isinstance(growth,pd.DataFrame):
+            g_store[name] = growth
+        else:
+            print('growth is not a dataframe')
+        name = 'debtpaying_'+str(key)+'_'+str(index)
+        print('start get '+name)
+        debtpaying = ts.get_debtpaying_data(key,index)
+        if isinstance(debtpaying,pd.DataFrame):
+            g_store[name] = debtpaying
+        else:
+            print('debtpaying is not a dataframe')
 
 if g_store.is_open:
     g_store.close()
