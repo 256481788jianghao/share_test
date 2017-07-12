@@ -12,11 +12,13 @@ import FilterDataModule as fd
 
 def getData(code,startDate=None,endDate=None):
     if startDate is None and endDate is None:
-        return fd.getHisDataByCode(code)
+        data = fd.getHisDataByCode(code)
     elif startDate is not None and endDate is None:
-        return fd.getHisDataByCode(code)[startDate:startDate]
+        data = fd.getHisDataByCode(code)[startDate:startDate]
     else:
-        return fd.getHisDataByCode(code)[startDate:endDate]
+        data = fd.getHisDataByCode(code)[startDate:endDate]
+    data['turnover_rate'] = data.turnover/data.turnover.min()
+    return data
 
 def getAllData(startDate,endDate=None):
     data_list = []
@@ -31,6 +33,5 @@ def getAllData(startDate,endDate=None):
     frame = pd.concat(data_list,ignore_index=True)
     return frame
 
-frame = getAllData('2017-07-04')
-print('==========================')
-print(frame.sort_values(by='turnover').code)
+data = getData('300024','2017-07-04','2017-01-01')
+print(data)

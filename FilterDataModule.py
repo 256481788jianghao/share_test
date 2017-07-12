@@ -83,6 +83,7 @@ def getHisDataByCode(code):
     tmp = dataBase.get_share_history_data(str(code))
     if not isinstance(tmp,pd.DataFrame):
         return None
+    tmp = tmp[tmp.turnover > 0] 
     tmp['date'] = tmp.index
     tmp['code'] = code
     return tmp
