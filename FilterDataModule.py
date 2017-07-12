@@ -81,7 +81,7 @@ all_share_list['code'] = all_share_codes
 printTime(3)
 def getHisDataByCode(code):
     tmp = dataBase.get_share_history_data(str(code))
-    if not isinstance(tmp,pd.DataFrame):
+    if not (isinstance(tmp,pd.DataFrame) and not tmp.empty):
         return None
     tmp = tmp[tmp.turnover > 0] 
     tmp['date'] = tmp.index
