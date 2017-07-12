@@ -17,6 +17,7 @@ def getData(code,startDate=None,endDate=None):
         data = fd.getHisDataByCode(code)[startDate:startDate]
     else:
         data = fd.getHisDataByCode(code)[startDate:endDate]
+    """未使用历史最小，是因为这个比例具有时代性，我觉得利用一段时期的最小比较合适"""
     data['turnover_rate'] = data.turnover/data.turnover.min()
     return data
 
