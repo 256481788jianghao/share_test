@@ -70,7 +70,7 @@ class DataBase:
                 else:
                     endDateObj = dtime.datetime.strptime(endDate,"%Y-%m-%d")
                     del_time2 = startDateObj - endDateObj
-                    stop = int(del_time2.days)
+                    stop = int(del_time2.days+3)
                 data = self.store.select('share_'+str(code),start=start,stop=stop)
                 if not isinstance(data,pd.DataFrame):
                     return None
