@@ -79,13 +79,10 @@ all_share_codes = list(all_share_list.index)
 all_share_list['code'] = all_share_codes
           
 printTime(3)
-def getHisDataByCode(code):
-    tmp = dataBase.get_share_history_data(str(code))
+def getHisDataByCode(code,startDate=None,endDate=None):
+    tmp = dataBase.get_share_history_data(str(code),startDate,endDate)
     if not (isinstance(tmp,pd.DataFrame) and not tmp.empty):
         return None
-    tmp = tmp[tmp.turnover > 0] 
-    tmp['date'] = tmp.index
-    tmp['code'] = code
     return tmp
 """
 tmp_list = []
@@ -117,6 +114,8 @@ printTime(5)
 
 print('---filter data end---')
  
+
+"""
 if __name__ == '__main__':
     from socket import *
     #from time import ctime
@@ -188,3 +187,4 @@ if __name__ == '__main__':
                 tcpClientSock.send(s.encode('utf8'))
     tcpClientSock.close()
     sock.close()
+"""

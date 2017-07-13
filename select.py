@@ -10,29 +10,29 @@ import ToolModule as tm
 #import datetime
 import FilterDataModule as fd
 
-def getData(code,startDate=None,endDate=None):
-    if startDate is None and endDate is None:
-        data = fd.getHisDataByCode(code)
-    elif startDate is not None and endDate is None:
-        data = fd.getHisDataByCode(code)[startDate:startDate]
-    else:
-        data = fd.getHisDataByCode(code)[startDate:endDate]
-    """未使用历史最小，是因为这个比例具有时代性，我觉得利用一段时期的最小比较合适"""
-    data['turnover_rate'] = data.turnover/data.turnover.min()
-    return data
-
-def getAllData(startDate,endDate=None):
+def getData(code=None,startDate=None,endDate=None):
     data_list = []
-    for code in fd.all_share_codes:
-        data = getData(code,startDate,endDate)
-        #print(type(data))
+    code_list = []
+    turnover_rate_list = []
+    if code is None:
+        allCode = fd.all_share_codes
+    else:
+        allCode = code
+    for code in allCode:
+        data = fd.getHisDataByCode(code,startDate,endDate)
         if isinstance(data,pd.DataFrame) and not data.empty:
+            data = data[data.turnover > 0]
+            turnover_rate_list.extend(list(data.turnover/data.turnover.min()))
+            code_list.extend([code]*len(data))
             data_list.append(data)
             #print('==================')
             #print(data)
     #print(len(data_list))    
-    frame = pd.concat(data_list,ignore_index=True)
+    frame = pd.concat(data_list)#,ignore_index=True)
+    frame['code'] = code_list
+    frame['turnover_rate'] = turnover_rate_list
     return frame
 
-data = getData('300024','2017-07-04','2017-01-01')
+#data = getData('300024','2017-07-04')
+data = getData([300024,300021],'2017-07-04','2017-06-04')
 print(data)
