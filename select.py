@@ -10,7 +10,7 @@ import ToolModule as tm
 #import datetime
 import FilterDataModule as fd
 
-def getData(code=None,startDate=None,endDate=None):
+def getData(code=None,startDate=None,endDate=None,ft=None):
     data_list = []
     code_list = []
     turnover_rate_list = []
@@ -22,7 +22,7 @@ def getData(code=None,startDate=None,endDate=None):
     #print(len(allCode))
     for code in allCode:
         data = fd.getHisDataByCode(code,startDate,endDate)
-        if isinstance(data,pd.DataFrame) and not data.empty:
+        if isinstance(data,pd.DataFrame) and not data.empty and (ft is None or ft(data)):
             data = data[data.turnover > 0]
             turnover_rate_list.extend(list(data.turnover/data.turnover.min()))
             code_list.extend([code]*len(data))
@@ -36,5 +36,10 @@ def getData(code=None,startDate=None,endDate=None):
     return frame
 
 #data = getData('300024','2017-07-04')
-data = getData(None,'2017-07-04','2017-06-04')
-print(data)
+data = getData(None,'2017-07-05','2017-07-04',ft=lambda x:x.loc['2017-07-05','p_change'] >= 10)
+data1 = data[data.p_change > 0]
+data2 = data1.loc['2017-07-05']
+data3 = data1.loc['2017-07-04']
+
+print(len(data2))
+print(len(data3))
