@@ -45,14 +45,42 @@ class DataBase:
     """
     获取个股信息，如果有本地数据，先拿本地数据,如果没有本地数据，先更新，再拿本地数据
     """
-    def get_share_history_data(self,code):
+    def get_share_history_data(self,code,startDate=None,endDate=None):
         try:
-            data = self.store['share_'+code]
-            if not isinstance(data,pd.DataFrame):
-                return None
+            if startDate is None and endDate is None:
+                data = self.store.select('share_'+str(code))
+                if not isinstance(data,pd.DataFrame):
+                    return None
+                else:
+                    return data
             else:
-                return data
-        except:
+                topData = self.store.select('share_'+str(code),start=0,stop=1)
+                if topData.empty:
+                    return None
+                topDateStr = topData.index[0]
+                topDateObj = dtime.datetime.strptime(topDateStr,"%Y-%m-%d")
+                startDateObj = dtime.datetime.strptime(startDate,"%Y-%m-%d")
+                del_time = topDateObj - startDateObj
+                if del_time.days <=0:
+                    start = 0
+                else:
+                    start = int(del_time.days*0.8)
+                if endDate is None:
+                    stop = 10
+                else:
+                    endDateObj = dtime.datetime.strptime(endDate,"%Y-%m-%d")
+                    del_time2 = startDateObj - endDateObj
+                    stop = int(del_time2.days)
+                data = self.store.select('share_'+str(code),start=start,stop=stop)
+                if not isinstance(data,pd.DataFrame):
+                    return None
+                else:
+                    if endDate is None:
+                        return data.loc[startDate:startDate]
+                    else:
+                        return data.loc[startDate:endDate]
+        except Exception as e:
+            print(" get_share_history_data except code="+str(code)+" e="+str(e))
             return None
         
     """
@@ -179,7 +207,7 @@ if __name__ == "__main__":
     dataBase.update_all()
     #print(dataBase.get_hs300_sharelist())
     #dataBase._makeLocalShareDataPath(100)
-    #dataBase.get_share_history_data(300512)
+    #data = dataBase.get_share_history_data(300024,'2017-07-03','2017-06-03')
     #dataBase.update_all_share_history_data()
     #data = ts.get_hist_data('399300')
     #print(data)
