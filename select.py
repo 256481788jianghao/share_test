@@ -36,10 +36,5 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     return frame
 
 #data = getData('300024','2017-07-04')
-data = getData(None,'2017-07-05','2017-07-04',ft=lambda x:x.loc['2017-07-05','p_change'] >= 10)
-data1 = data[data.p_change > 0]
-data2 = data1.loc['2017-07-05']
-data3 = data1.loc['2017-07-04']
-
-print(len(data2))
-print(len(data3))
+data = getData(None,'2017-07-05','2017-07-04')
+print(data)
