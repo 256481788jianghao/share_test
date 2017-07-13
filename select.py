@@ -18,6 +18,8 @@ def getData(code=None,startDate=None,endDate=None):
         allCode = fd.all_share_codes
     else:
         allCode = code
+    #allCode = [x for x in allCode if (int(x) > 300999 or int(x) < 300000)]
+    #print(len(allCode))
     for code in allCode:
         data = fd.getHisDataByCode(code,startDate,endDate)
         if isinstance(data,pd.DataFrame) and not data.empty:
@@ -34,5 +36,5 @@ def getData(code=None,startDate=None,endDate=None):
     return frame
 
 #data = getData('300024','2017-07-04')
-data = getData([300024,300021],'2017-07-04','2017-06-04')
+data = getData(None,'2017-07-04','2017-06-04')
 print(data)
