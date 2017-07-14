@@ -75,8 +75,8 @@ all_share_list['esp'] = all_share_list['esp'].apply(tm.strToFloat)
 
 printTime(2)
 #所有股票代码
-all_share_codes = list(all_share_list.index)
-all_share_list['code'] = all_share_codes
+all_share_codes = [int(x) for x in all_share_list.index]
+all_share_list['code_int'] = all_share_codes
           
 printTime(3)
 def getHisDataByCode(code,startDate=None,endDate=None):

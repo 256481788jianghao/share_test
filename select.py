@@ -35,16 +35,15 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     frame.loc[:,'turnover_rate'] = turnover_rate_list
     return frame
 
-#data = getData('300024','2017-07-04')
-def FT(data):
-    if len(data) == 3:
-        return True
-    else:
-        return False
-data = getData(None,'2017-07-05','2017-07-03',ft=FT)
-data2 = data.groupby('code').apply(lambda x:x.p_change)
-
-k1 = data2[(data2['2017-07-04'] > 0) & (data2['2017-07-03']>8)]
-k2 = data2[data2['2017-07-03']>8]
-
-print(len(k1)/len(k2))
+"""
+factor 大势因子，要根据宏观环境给出一个估计（0,1],0表示整个市场不具有任何投资机会，
+       1表示随机投资就可以赚钱
+startDate ，endDate 基于那段区间的历史数据做出的判断
+"""
+def selectData(factor,startDate,endDate):
+    infoData = fd.all_share_list
+    infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000) ]
+    print(infoData)
+    pass
+    
+selectData(1,'2017-07-05','2017-06-01')
