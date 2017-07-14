@@ -43,7 +43,8 @@ startDate ，endDate 基于那段区间的历史数据做出的判断
 def selectData(factor,startDate,endDate):
     infoData = fd.all_share_list
     infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000) ]
-    print(infoData)
+    allData = getData(infoData.index,startDate,endDate)
+    print(allData)
     pass
     
 selectData(1,'2017-07-05','2017-06-01')
