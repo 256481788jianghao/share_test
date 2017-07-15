@@ -42,9 +42,16 @@ startDate ，endDate 基于那段区间的历史数据做出的判断
 """
 def selectData(factor,startDate,endDate):
     infoData = fd.all_share_list
+    #排除创业板
     infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000) ]
     allData = getData(infoData.index,startDate,endDate)
-    print(allData)
-    pass
+    allDataGroup = allData.groupby('code')
+    data0th = allDataGroup.nth(0)
+    data0th = data0th.loc[data0th.p_change > 0]
+    data1th = allDataGroup.nth(1)
+    data1th = data1th.loc[(data1th.p_change > 7) & (data1th.p_change < 10)]
+    data = data0th[data0th.index.isin(data1th.index)]
+    print(data.turnover_rate)
+    print(infoData[infoData.index.isin(data.index)])
     
 selectData(1,'2017-07-05','2017-06-01')
