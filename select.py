@@ -14,6 +14,7 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     data_list = []
     code_list = []
     turnover_rate_list = []
+    volume_rate_list = []
     if code is None:
         allCode = fd.all_share_codes
     else:
@@ -23,8 +24,9 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     for code in allCode:
         data = fd.getHisDataByCode(code,startDate,endDate)
         if isinstance(data,pd.DataFrame) and not data.empty and (ft is None or ft(data)):
-            data = data[data.turnover > 0]
+            data = data[(data.turnover > 0) & (data.volume > 0)]
             turnover_rate_list.extend(list(data.turnover/data.turnover.min()))
+            volume_rate_list.extend(list(data.volume/data.volume.min()))
             code_list.extend([code]*len(data))
             data_list.append(data)
             #print('==================')
@@ -33,6 +35,7 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     frame = pd.concat(data_list)#,ignore_index=True)
     frame.loc[:,'code'] = code_list
     frame.loc[:,'turnover_rate'] = turnover_rate_list
+    frame.loc[:,'volume_rate'] = volume_rate_list
     return frame
 
 """
@@ -51,19 +54,23 @@ def DetectData(factor,startDate,endDate,baseNth = 1):
         pChangeMin = None
         pChangeMean = None
         turnoverRateMean = None
+        volumeRateMean = None
         pChangeArray = item.p_change
         turnoverRateArray = item.turnover_rate
+        volumeRateArray = item.volume_rate
         if len(pChangeArray) >= baseNth+1+5:
             pChangeSub = pChangeArray.iloc[0:baseNth]
             turnoverRateSub = turnoverRateArray[baseNth:(baseNth+5)]
+            volumeRateSub = volumeRateArray[baseNth:(baseNth+5)]
             pChangeMax = pChangeSub.max()
             pChangeMin = pChangeSub.min()
             pChangeMean = pChangeSub.mean()
-            turnoverRateMean = turnoverRateSub.mean()/turnoverRateArray.mean()
-        return pd.Series({"turnoverRate_diff":turnoverRateMean,"p_change_max":pChangeMax,'p_change_min':pChangeMin,'p_change_mean':pChangeMean})
+            turnoverRateMean = turnoverRateSub.mean()
+            volumeRateMean = volumeRateSub.mean()
+        return pd.Series({"volume_Rate_mean":volumeRateMean,"turnoverRate_mean":turnoverRateMean,"p_change_max":pChangeMax,'p_change_min':pChangeMin,'p_change_mean':pChangeMean})
     data0Group = allDataGroup.apply(getMaxMin)
     data1th = allDataGroup.nth(baseNth)
-    data1th = data1th.loc[(data1th.p_change > -10) & (data1th.p_change < 0)]
+    data1th = data1th.loc[(data1th.p_change > 5) & (data1th.p_change < 10)]
     data = data0Group[data0Group.index.isin(data1th.index)]
     infoDataSub = infoData[infoData.index.isin(data.index)]
     print(data)
