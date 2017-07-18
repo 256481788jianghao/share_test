@@ -70,10 +70,10 @@ def DetectData(factor,startDate,endDate,baseNth = 1):
         return pd.Series({"volume_Rate_mean":volumeRateMean,"turnoverRate_mean":turnoverRateMean,"p_change_max":pChangeMax,'p_change_min':pChangeMin,'p_change_mean':pChangeMean})
     data0Group = allDataGroup.apply(getMaxMin)
     data1th = allDataGroup.nth(baseNth)
-    data1th = data1th.loc[(data1th.p_change > 5) & (data1th.p_change < 10)]
+    data1th = data1th.loc[(data1th.p_change > 7) & (data1th.p_change < 10)]
     data = data0Group[data0Group.index.isin(data1th.index)]
     infoDataSub = infoData[infoData.index.isin(data.index)]
     print(data)
     #print(pd.concat([data,infoDataSub],axis=1,join='inner'))
     
-DetectData(1,'2017-07-05','2017-06-01',baseNth = 5)
+DetectData(1,'2017-07-05','2017-06-01',baseNth = 1)
