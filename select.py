@@ -38,11 +38,6 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     frame.loc[:,'volume_rate'] = volume_rate_list
     return frame
 
-"""
-factor 大势因子，要根据宏观环境给出一个估计（0,1],0表示整个市场不具有任何投资机会，
-       1表示随机投资就可以赚钱
-startDate ，endDate 基于那段区间的历史数据做出的判断
-"""
 def DetectData(factor,startDate,endDate,baseNth = 1):
     infoData = fd.all_share_list
     #排除创业板
@@ -76,4 +71,29 @@ def DetectData(factor,startDate,endDate,baseNth = 1):
     print(data)
     #print(pd.concat([data,infoDataSub],axis=1,join='inner'))
     
-DetectData(1,'2017-07-05','2017-06-01',baseNth = 1)
+
+def buyProcess(curPrice,myPrice,myVolume,priceDownRate=0.9,priceTargetRate=1.05):
+    if curPrice <= priceDownRate*myPrice:
+        buyVolume = (1-priceDownRate*priceTargetRate)/priceDownRate/(priceTargetRate-1)*myVolume
+        buyVolume = int(buyVolume/100+1)*100
+        myPrice = (myPrice*myVolume+curPrice*buyVolume)/(myVolume+buyVolume)
+        myVolume = myVolume+buyVolume
+    return myPrice,myVolume
+    
+def test():
+    priceDownRate=0.8
+    priceTargetRate=1.05
+    myPrice = 20
+    myVolume = 100
+    allData = [0.01*x for x in range(myPrice*100,100*10,-1)]
+    for price in allData:
+        #print(price)
+        myPriceCur,myVolumeCur = buyProcess(price,myPrice,myVolume,priceDownRate,priceTargetRate)
+        if myPriceCur != myPrice:
+            myPrice = myPriceCur
+            myVolume = myVolumeCur
+            print(myPrice)
+            print(myVolume)
+            print(myPrice*myVolume)
+    
+test()
