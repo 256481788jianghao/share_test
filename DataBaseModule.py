@@ -64,17 +64,20 @@ class DataBase:
                 if del_time.days <=0:
                     start = 0
                 else:
-                    start = int(del_time.days*0.8)
+                    start = int(del_time.days*0.5)
                 if endDate is None:
-                    stop = 10
+                    stop = start+10
                 else:
                     endDateObj = dtime.datetime.strptime(endDate,"%Y-%m-%d")
                     del_time2 = startDateObj - endDateObj
-                    stop = int(del_time2.days+3)
+                    stop = int(del_time2.days+3)+start
+                print(start)
+                print(stop)
                 data = self.store.select('share_'+str(code),start=start,stop=stop)
                 if not isinstance(data,pd.DataFrame):
                     return None
                 else:
+                    #print(data)
                     if endDate is None:
                         return data.loc[startDate:startDate]
                     else:

@@ -82,6 +82,7 @@ printTime(3)
 def getHisDataByCode(code,startDate=None,endDate=None):
     tmp = dataBase.get_share_history_data(str(code),startDate,endDate)
     if not (isinstance(tmp,pd.DataFrame) and not tmp.empty):
+        print("getHisDataByCode code="+str(code)+" return None")
         return None
     return tmp
 """

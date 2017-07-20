@@ -9,12 +9,14 @@ import pandas as pd
 import ToolModule as tm
 #import datetime
 import FilterDataModule as fd
+import statsmodels.api as sm
 
 def getData(code=None,startDate=None,endDate=None,ft=None):
     data_list = []
     code_list = []
     turnover_rate_list = []
-    volume_rate_list = []
+    #volume_rate_list = []
+    close_rate_list = []
     if code is None:
         allCode = fd.all_share_codes
     else:
@@ -24,23 +26,27 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     for code in allCode:
         data = fd.getHisDataByCode(code,startDate,endDate)
         if isinstance(data,pd.DataFrame) and not data.empty and (ft is None or ft(data)):
-            data = data[(data.turnover > 0) & (data.volume > 0)]
+            data = data[(data.turnover > 0) & (data.close > 0)]
             turnover_rate_list.extend(list(data.turnover/data.turnover.min()))
-            volume_rate_list.extend(list(data.volume/data.volume.min()))
+            #volume_rate_list.extend(list(data.volume/data.volume.min()))
+            close_rate_list.extend(list(data.close/data.close.min()))
             code_list.extend([code]*len(data))
             data_list.append(data)
             #print('==================')
             #print(data)
+        else:
+            pass
+            #print("code="+str(code)+" is not good")
     #print(len(data_list))    
     frame = pd.concat(data_list)#,ignore_index=True)
     frame.loc[:,'code'] = code_list
     frame.loc[:,'turnover_rate'] = turnover_rate_list
-    frame.loc[:,'volume_rate'] = volume_rate_list
+    #frame.loc[:,'volume_rate'] = volume_rate_list
+    frame.loc[:,'close_rate'] = close_rate_list
     return frame
 
 def DetectData(factor,startDate,endDate,baseNth = 1):
     infoData = fd.all_share_list
-    #排除创业板
     infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000) ]
     allData = getData(infoData.index,startDate,endDate)
     allDataGroup = allData.groupby('code')
@@ -71,7 +77,28 @@ def DetectData(factor,startDate,endDate,baseNth = 1):
     print(data)
     #print(pd.concat([data,infoDataSub],axis=1,join='inner'))
     
-
+def DetectData2(factor,startDate,endDate,baseNth = 1):
+    infoData = fd.all_share_list
+    infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000) ]
+    allData = getData(infoData.index,startDate,endDate)
+    allDataGroup = allData.groupby('code')
+    def getOLSCoef(data):
+        datalen = len(data)
+        X = [x-1 for x in range(datalen,0,-1)]
+        X = sm.add_constant(X)
+        res = sm.OLS(data,X).fit()
+        if len(res.params) == 2:
+            return res.params.x1
+        else:
+            return 0
+    def app(item):
+        return  getOLSCoef(item.turnover_rate)
+    data0Group = allDataGroup.apply(app)
+    print(data0Group[data0Group > 0])
+    
+DetectData2(1,'2017-07-19','2017-06-15')
+    
+"""
 def buyProcess(curPrice,myPrice,myVolume,priceDownRate=0.9,priceTargetRate=1.05):
     if curPrice <= priceDownRate*myPrice:
         buyVolume = (1-priceDownRate*priceTargetRate)/priceDownRate/(priceTargetRate-1)*myVolume
@@ -96,5 +123,4 @@ def test():
             print(myVolume)
             print(myPrice*myVolume)
             print("=====")
-    
-test()
+"""   
