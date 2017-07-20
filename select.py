@@ -81,8 +81,8 @@ def buyProcess(curPrice,myPrice,myVolume,priceDownRate=0.9,priceTargetRate=1.05)
     return myPrice,myVolume
     
 def test():
-    priceDownRate=0.8
-    priceTargetRate=1.05
+    priceDownRate=0.9
+    priceTargetRate=0.5*(1-priceDownRate)/priceDownRate+1
     myPrice = 20
     myVolume = 100
     allData = [0.01*x for x in range(myPrice*100,100*10,-1)]
@@ -95,5 +95,6 @@ def test():
             print(myPrice)
             print(myVolume)
             print(myPrice*myVolume)
+            print("=====")
     
 test()
