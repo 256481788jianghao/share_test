@@ -82,19 +82,21 @@ def DetectData2(factor,startDate,endDate,baseNth = 1):
     infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
     allData = getData(infoData.index,startDate,endDate)
     allDataGroup = allData.groupby('code')
+    firstData = allDataGroup.nth(0)
     def getOLSCoef(data):
         datalen = len(data)
+        if datalen < 2:
+           return pd.Series({'const':0,'x1':0})
         X = [x-1 for x in range(datalen,0,-1)]
         X = sm.add_constant(X)
         res = sm.OLS(data,X).fit()
-        if len(res.params) == 2:
-            return res.params.x1
-        else:
-            return 0
+        return res.params
     def app(item):
-        return  getOLSCoef(item.turnover_rate)
+        return  getOLSCoef(item.turnover_rate.iloc[baseNth:-1])
     data0Group = allDataGroup.apply(app)
-    print(data0Group[data0Group == 0])
+    print(data0Group)
+    data = pd.concat([firstData,data0Group],axis=1)
+    print(data)
     
 DetectData2(1,'2017-07-19','2017-06-15')
     
