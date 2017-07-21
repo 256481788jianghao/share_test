@@ -56,6 +56,7 @@ class DataBase:
             else:
                 topData = self.store.select('share_'+str(code),start=0,stop=1)
                 if topData.empty:
+                    print("start data is emmpty code="+str(code))
                     return None
                 topDateStr = topData.index[0]
                 topDateObj = dtime.datetime.strptime(topDateStr,"%Y-%m-%d")
@@ -71,17 +72,22 @@ class DataBase:
                     endDateObj = dtime.datetime.strptime(endDate,"%Y-%m-%d")
                     del_time2 = startDateObj - endDateObj
                     stop = int(del_time2.days+3)+start
-                print(start)
-                print(stop)
+                #print(start)
+                #print(stop)
                 data = self.store.select('share_'+str(code),start=start,stop=stop)
                 if not isinstance(data,pd.DataFrame):
+                    print("data is not dataframe code="+str(code)+" ["+str(start)+" "+str(stop)+"]")
                     return None
                 else:
                     #print(data)
                     if endDate is None:
-                        return data.loc[startDate:startDate]
+                        ret_data = data.loc[startDate:startDate]
                     else:
-                        return data.loc[startDate:endDate]
+                        ret_data = data.loc[startDate:endDate]
+                    
+                    if ret_data is None or ret_data.empty:
+                        print("DataBase is None or empty"+" code="+str(code)+" ["+startDate+" "+endDate+"]")
+                    return ret_data
         except Exception as e:
             print(" get_share_history_data except code="+str(code)+" e="+str(e))
             return None

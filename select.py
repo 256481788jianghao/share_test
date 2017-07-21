@@ -79,7 +79,7 @@ def DetectData(factor,startDate,endDate,baseNth = 1):
     
 def DetectData2(factor,startDate,endDate,baseNth = 1):
     infoData = fd.all_share_list
-    infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000) ]
+    infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
     allData = getData(infoData.index,startDate,endDate)
     allDataGroup = allData.groupby('code')
     def getOLSCoef(data):
@@ -94,7 +94,7 @@ def DetectData2(factor,startDate,endDate,baseNth = 1):
     def app(item):
         return  getOLSCoef(item.turnover_rate)
     data0Group = allDataGroup.apply(app)
-    print(data0Group[data0Group > 0])
+    print(data0Group[data0Group == 0])
     
 DetectData2(1,'2017-07-19','2017-06-15')
     
