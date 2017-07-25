@@ -92,14 +92,45 @@ def DetectData2(factor,startDate,endDate,baseNth = 1):
         res = sm.OLS(data,X).fit()
         return res.params
     def app(item):
-        return  getOLSCoef(item.turnover_rate.iloc[baseNth:-1])
+        close_rate_x1 = getOLSCoef(item.close_rate.iloc[baseNth:-1]).x1
+        turnover_x1 = getOLSCoef(item.turnover_rate.iloc[baseNth:-1]).x1
+        return pd.Series({'close_rate_x1':close_rate_x1,'turnover_x1':turnover_x1})
     data0Group = allDataGroup.apply(app)
-    print(data0Group)
     data = pd.concat([firstData,data0Group],axis=1)
-    print(data)
+    print(data[(data.close_rate_x1 > 0) & (data.turnover_x1 > 0.7) & (data.turnover_x1 < 2)])
     
-DetectData2(1,'2017-07-19','2017-06-15')
-    
+def DetectData3(factor,startDate,endDate,baseNth = 1):
+    infoData = fd.all_share_list
+    infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
+    allData = getData(infoData.index,startDate,endDate)
+    allDataGroup = allData.groupby('code')
+    def test(item):
+        if len(item) < 100:
+            return -100
+        else:
+            std = item.close_rate.std()
+            mean = item.close_rate.mean()
+            subdata = item[(item.close_rate - mean).abs() > 2*std]
+            return len(subdata)/len(item)
+    data0Group = allDataGroup.apply(test)
+    print(data0Group[data0Group > 0.25])
+
+def DetectData4(factor,startDate,endDate,baseNth = 1):
+    infoData = fd.all_share_list
+    infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
+    allData = getData(infoData.index,startDate,endDate)
+    allDataGroup = allData.groupby('code')
+    def test(item):
+        if len(item) < 100:
+            return 0
+        itemToday = item.shift(1)
+        subitem = itemToday[(itemToday.p_change > 0) & (item.p_change < 0)]
+        return len(subitem)/len(item)
+    data0Group = allDataGroup.apply(test)
+    print([data0Group.median(),data0Group.mean(),data0Group.std()])
+
+
+DetectData4(1,'2017-07-19','2016-07-19')   
 """
 def buyProcess(curPrice,myPrice,myVolume,priceDownRate=0.9,priceTargetRate=1.05):
     if curPrice <= priceDownRate*myPrice:
