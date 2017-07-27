@@ -27,9 +27,9 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
         data = fd.getHisDataByCode(code,startDate,endDate)
         if isinstance(data,pd.DataFrame) and not data.empty and (ft is None or ft(data)):
             data = data[(data.turnover > 0) & (data.close > 0)]
-            turnover_rate_list.extend(list(data.turnover/data.turnover.min()))
+            turnover_rate_list.extend(list(data.turnover/data.turnover.iloc[0]))
             #volume_rate_list.extend(list(data.volume/data.volume.min()))
-            close_rate_list.extend(list(data.close/data.close.min()))
+            close_rate_list.extend(list(data.close/data.close.iloc[0]))
             code_list.extend([code]*len(data))
             data_list.append(data)
             #print('==================')
@@ -121,16 +121,15 @@ def DetectData4(factor,startDate,endDate,baseNth = 1):
     allData = getData(infoData.index,startDate,endDate)
     allDataGroup = allData.groupby('code')
     def test(item):
-        if len(item) < 100:
-            return 0
-        itemToday = item.shift(1)
-        subitem = itemToday[(itemToday.p_change > 0) & (item.p_change < 0)]
-        return len(subitem)/len(item)
+        print(item.turnover_rate)
     data0Group = allDataGroup.apply(test)
     print([data0Group.median(),data0Group.mean(),data0Group.std()])
 
 
-DetectData4(1,'2017-07-19','2016-07-19')   
+x0 = 24.647
+b0 = 2600
+
+print((1+0.01/100)**360)
 """
 def buyProcess(curPrice,myPrice,myVolume,priceDownRate=0.9,priceTargetRate=1.05):
     if curPrice <= priceDownRate*myPrice:
