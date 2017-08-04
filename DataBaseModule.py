@@ -46,18 +46,49 @@ class DataBase:
     获取个股信息，如果有本地数据，先拿本地数据,如果没有本地数据，先更新，再拿本地数据
     """
     def get_share_history_data(self,code,startDate=None,endDate=None):
+        data = self.store.select('share_'+str(code))
+        if not isinstance(data,pd.DataFrame):
+                    return None
+        #data = data.iloc[::-1]
+        data.index = data.date
+        if startDate is None and endDate is None:
+                return data
+        elif startDate is not None and endDate is None:
+                return data[startDate:startDate]
+        else:
+                return data[startDate:endDate]
+        """
+        if startDate is None and endDate is None:
+                data = self.store.select('share_'+str(code))
+                data = data.iloc[::-1]
+                data.index = data.date
+                if not isinstance(data,pd.DataFrame):
+                    return None
+                else:
+                    return data
+        else:
+                topData = self.store.select('share_'+str(code),start=0,stop=1)
+                print(topData)
+        """
+                
+    def debug_get_share_history_data(self,code,startDate=None,endDate=None):
         try:
             if startDate is None and endDate is None:
                 data = self.store.select('share_'+str(code))
+                data = data.iloc[::-1]
+                data.index = data.date
                 if not isinstance(data,pd.DataFrame):
                     return None
                 else:
                     return data
             else:
                 topData = self.store.select('share_'+str(code),start=0,stop=1)
+                print(topData)
+                """
                 if topData.empty:
                     print("start data is emmpty code="+str(code))
                     return None
+                
                 topDateStr = topData.index[0]
                 topDateObj = dtime.datetime.strptime(topDateStr,"%Y-%m-%d")
                 startDateObj = dtime.datetime.strptime(startDate,"%Y-%m-%d")
@@ -88,10 +119,10 @@ class DataBase:
                     if ret_data is None or ret_data.empty:
                         print("DataBase is None or empty"+" code="+str(code)+" ["+startDate+" "+endDate+"]")
                     return ret_data
+                    """
         except Exception as e:
             print(" get_share_history_data except code="+str(code)+" e="+str(e))
             return None
-        
     """
     获取沪深300指数信息
     """
@@ -104,7 +135,7 @@ class DataBase:
     def update_share_history_data(self,codestr):
         code = self.__formtInputCode(codestr)
         self.__log("update data from internet code="+code)
-        data = ts.get_hist_data(code)
+        data = ts.get_k_data(code)
         if isinstance(data,pd.DataFrame) and not data.empty:
             self.store['share_'+code] = data
         else:

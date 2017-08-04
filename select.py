@@ -17,6 +17,7 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     turnover_rate_list = []
     #volume_rate_list = []
     close_rate_list = []
+    p_change_list = []
     if code is None:
         allCode = fd.all_share_codes
     else:
@@ -26,11 +27,14 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     for code in allCode:
         data = fd.getHisDataByCode(code,startDate,endDate)
         if isinstance(data,pd.DataFrame) and not data.empty and (ft is None or ft(data)):
-            data = data[(data.turnover > 0) & (data.close > 0)]
-            turnover_rate_list.extend(list(data.turnover/data.turnover.iloc[0]))
+            data = data[(data.volume > 0) & (data.close > 0)]
+            turnover_rate_list.extend(list(data.volume/data.volume.iloc[-1]))
             #volume_rate_list.extend(list(data.volume/data.volume.min()))
-            close_rate_list.extend(list(data.close/data.close.iloc[0]))
+            close_rate_list.extend(list(data.close/data.close.iloc[-1]))
             code_list.extend([code]*len(data))
+            p_change_tmp = data.close.diff()/data.close.shift(1)*100
+            p_change_tmp.iloc[0] = 0
+            p_change_list.extend(list(p_change_tmp))
             data_list.append(data)
             #print('==================')
             #print(data)
@@ -43,6 +47,7 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     frame.loc[:,'turnover_rate'] = turnover_rate_list
     #frame.loc[:,'volume_rate'] = volume_rate_list
     frame.loc[:,'close_rate'] = close_rate_list
+    frame.loc[:,'p_change'] = p_change_list
     return frame
 
 def DetectData(factor,startDate,endDate,baseNth = 1):
@@ -115,21 +120,46 @@ def DetectData3(factor,startDate,endDate,baseNth = 1):
     data0Group = allDataGroup.apply(test)
     print(data0Group[data0Group > 0.25])
 
-def DetectData4(factor,startDate,endDate,baseNth = 1):
+def DetectData4(factor,startDate,endDate):
     infoData = fd.all_share_list
     infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
     allData = getData(infoData.index,startDate,endDate)
+    #allData = getData(['000002','300024'],startDate,endDate)
     allDataGroup = allData.groupby('code')
     def test(item):
-        print(item.turnover_rate)
+        if len(item) < 5 :
+            return None
+        item1 = item.shift(1)
+        item2 = item.shift(2)
+        item3 = item.shift(3)
+        item4 = item.shift(4)
+        buyPrice = item1.open*0.98
+        item['condition'] = (item.high-buyPrice)/buyPrice*100
+        def subFind(ju,ju2=0.2):
+            subItem1 = item[ju]
+            ans = len(subItem1[subItem1.condition > ju2])/len(subItem1) if len(subItem1) > 0 else -1
+            return ans
+        ans1 = subFind(item2.p_change < -3)
+        ans2 = subFind((item2.p_change < 0) & (item3.p_change < -5))
+        ans3 = subFind(item2.p_change > 3)
+        ans4 = subFind(item2.p_change < -2)
+        ans5 = subFind((item2.p_change < 0) & (item3.p_change < -2))
+        
+        return pd.Series([ans1,ans2,ans3,ans4,ans5],index=['ans1','ans2','ans3','ans4','ans5'])
     data0Group = allDataGroup.apply(test)
-    print([data0Group.median(),data0Group.mean(),data0Group.std()])
+    print(data0Group.mean())
+
+def DetectData5(factor,startDate,endDate):
+    infoData = fd.all_share_list
+    infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
+    allData = getData(infoData.index,startDate,endDate)
+    print(allData[allData.p_change < -2])
+
+DetectData5(1,'2017-07-27','2017-07-28')
+#DetectData4(1,'2017-01-01','2017-08-01')
 
 
-x0 = 24.647
-b0 = 2600
 
-print((1+0.01/100)**360)
 """
 def buyProcess(curPrice,myPrice,myVolume,priceDownRate=0.9,priceTargetRate=1.05):
     if curPrice <= priceDownRate*myPrice:
