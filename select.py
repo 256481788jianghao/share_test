@@ -18,6 +18,7 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     #volume_rate_list = []
     close_rate_list = []
     p_change_list = []
+    v_change_list = []
     if code is None:
         allCode = fd.all_share_codes
     else:
@@ -35,6 +36,9 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
             p_change_tmp = data.close.diff()/data.close.shift(1)*100
             p_change_tmp.iloc[0] = 0
             p_change_list.extend(list(p_change_tmp))
+            v_change_tmp = data.volume.diff()/data.volume.shift(1)*100
+            v_change_tmp.iloc[0] = 0
+            v_change_list.extend(list(v_change_tmp))
             data_list.append(data)
             #print('==================')
             #print(data)
@@ -48,6 +52,7 @@ def getData(code=None,startDate=None,endDate=None,ft=None):
     #frame.loc[:,'volume_rate'] = volume_rate_list
     frame.loc[:,'close_rate'] = close_rate_list
     frame.loc[:,'p_change'] = p_change_list
+    frame.loc[:,'v_change'] = v_change_list
     return frame
 
 def DetectData(factor,startDate,endDate,baseNth = 1):
@@ -153,9 +158,24 @@ def DetectData5(factor,startDate,endDate):
     infoData = fd.all_share_list
     infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
     allData = getData(infoData.index,startDate,endDate)
-    print(allData[allData.p_change < -2])
+    def isPup(p):
+        if p > 0.5:
+            return 2
+        elif p < -0.5:
+            return 1
+        else:
+            return 0
+    def isVup(v):
+        if v > 10:
+            return 2
+        elif v < -10:
+            return 1
+        else:
+            return 0
+    allData.loc[:,'flags'] = allData.p_change.apply(isPup)*10+allData.v_change.apply(isVup)
+    print(allData.mean())
 
-DetectData5(1,'2017-07-27','2017-07-28')
+DetectData5(1,'2017-01-01','2017-08-04')
 #DetectData4(1,'2017-01-01','2017-08-01')
 
 
