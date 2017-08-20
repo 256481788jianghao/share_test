@@ -243,8 +243,8 @@ class DataBase:
 
 if __name__ == "__main__":
     dataBase = DataBase()
-    #dataBase.update_all_report_data()
-    dataBase.update_all()
+    dataBase.update_all_report_data()
+    #dataBase.update_all()
     #print(dataBase.get_hs300_sharelist())
     #dataBase._makeLocalShareDataPath(100)
     #data = dataBase.get_share_history_data(300024,'2017-07-03','2017-06-03')

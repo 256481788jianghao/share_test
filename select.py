@@ -155,27 +155,103 @@ def DetectData4(factor,startDate,endDate):
     print(data0Group.mean())
 
 def DetectData5(factor,startDate,endDate):
-    infoData = fd.all_share_list
-    infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
-    allData = getData(infoData.index,startDate,endDate)
-    def isPup(p):
-        if p > 0.5:
-            return 2
-        elif p < -0.5:
-            return 1
-        else:
-            return 0
-    def isVup(v):
-        if v > 10:
-            return 2
-        elif v < -10:
-            return 1
-        else:
-            return 0
-    allData.loc[:,'flags'] = allData.p_change.apply(isPup)*10+allData.v_change.apply(isVup)
-    print(allData.mean())
+    #infoData = fd.all_share_list
+    infoData = fd.all_share_list300
+    allData = getData(infoData.code,startDate,endDate)
+    #infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
+    #allData = getData(infoData.index,startDate,endDate)
+    #allData = getData(['000002','300024'],startDate,endDate)
+    allDataGroup = allData.groupby('code')
+    code_list = []
+    days_list = []
+    price_list = []
+    volume_list = []
+    suc_list = []
+    buyRate = 0.98
+    selRate = 1.1
+    addVolumeRate = 1.5
+    upMoney = 2e4
+    startVolume = 200
+    def test(item):
+        datalen = len(item)
+        curPrice = -1
+        curVolume = -1
+        status = -1
+        startIndex = -1
+        for index in range(0,datalen):
+            curItem = item.iloc[index]
+            if (curItem.p_change >= -5 ) and status == -1:
+                status = 0
+                continue
+            if status == 0:
+                if curItem.open*startVolume > upMoney:
+                    status = -1
+                    continue
+                curPrice = curItem.open
+                curVolume = startVolume
+                startIndex = index
+                status = 1
+                continue
+            if status == 1:
+                if curItem.high >= curPrice*selRate:
+                    tips = curPrice*selRate*curVolume*2/1000
+                    if tips < 5:
+                        tips = 5
+                    if curPrice*curVolume*(selRate-1) - tips > 0:
+                        status = -1
+                        code_list.append(curItem.code)
+                        days_list.append(index - startIndex)
+                        price_list.append(curPrice)
+                        volume_list.append(curVolume)
+                        if curPrice*curVolume > upMoney:
+                            suc_list.append(2)
+                        else:
+                            suc_list.append(1)
+                else:
+                    if curItem.low >= curPrice*buyRate:
+                        if index == datalen -1:
+                            status = -1
+                            code_list.append(curItem.code)
+                            days_list.append(index - startIndex)
+                            price_list.append(curPrice)
+                            volume_list.append(curVolume)
+                            suc_list.append(0)
+                        continue
+                    else:
+                        count = 0
+                        while curItem.low < curPrice*buyRate and count < 2:
+                            willBuyVolume = int(addVolumeRate*curVolume/100)*100+100
+                            toBuy = curPrice*buyRate*willBuyVolume
+                            tips = 5
+                            if toBuy*2/1000 > 5:
+                                tips = toBuy*2/1000
+                            allMoney = (curPrice*curVolume+toBuy+tips)
+                            if allMoney > upMoney:
+                                break
+                            curPrice = allMoney/(willBuyVolume+curVolume)
+                            curVolume = curVolume+willBuyVolume
+                            count = count + 1
+    allDataGroup.apply(test)
+    ans = pd.DataFrame({'code':code_list,'days':days_list,'price':price_list,'volume':volume_list,'suc':suc_list})
+    ans['pb'] = ans.price*ans.volume
+    ans['good'] = ans.pb*(selRate-1)
+    print(ans)
+    print(len(ans[ans.suc == 1])/len(ans))
+    print(len(ans[ans.days < 10])/len(ans))
+    print(ans[ans.suc == 1].mean())
+    print(ans[ans.suc == 1].max())
+    
+def DetectData6(factor,startDate,endDate):
+    #infoData = fd.all_share_list
+    infoData = fd.all_share_list300
+    allData = getData(infoData.code,startDate,endDate)
+    #infoData = infoData[(infoData.code_int > 300999) | (infoData.code_int < 300000)]
+    #allData = getData(infoData.index,startDate,endDate)
+    #allData = getData(['000002','300024'],startDate,endDate)
+    subData = allData.loc['2017-08-10']
+    print(subData.loc[(subData.close > 10) & (subData.close < 20),['code','close','p_change']])
 
-DetectData5(1,'2017-01-01','2017-08-04')
+DetectData6(1,'2017-08-09','2017-08-10')
 #DetectData4(1,'2017-01-01','2017-08-01')
 
 
